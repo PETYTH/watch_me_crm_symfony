@@ -2,12 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ClientHasEntrepriseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClientHasEntrepriseRepository::class)]
-#[ApiResource]
 class ClientHasEntreprise
 {
     #[ORM\Id]
@@ -15,13 +13,11 @@ class ClientHasEntreprise
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Client_idClient')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Client $client = null;
+    #[ORM\ManyToOne(inversedBy: 'Client_entreprise')]
+    private ?Client $Client = null;
 
-    #[ORM\ManyToOne(inversedBy: 'entreprise_id_client')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Entreprise $entreprise = null;
+    #[ORM\ManyToOne(inversedBy: 'Entreprise_client')]
+    private ?Entreprise $Entreprise_client = null;
 
     public function getId(): ?int
     {
@@ -30,24 +26,24 @@ class ClientHasEntreprise
 
     public function getClient(): ?Client
     {
-        return $this->client;
+        return $this->Client;
     }
 
-    public function setClient(?Client $client): static
+    public function setClient(?Client $Client): static
     {
-        $this->client = $client;
+        $this->Client = $Client;
 
         return $this;
     }
 
-    public function getEntreprise(): ?Entreprise
+    public function getEntrepriseClient(): ?Entreprise
     {
-        return $this->entreprise;
+        return $this->Entreprise_client;
     }
 
-    public function setEntreprise(?Entreprise $entreprise): static
+    public function setEntrepriseClient(?Entreprise $Entreprise_client): static
     {
-        $this->entreprise = $entreprise;
+        $this->Entreprise_client = $Entreprise_client;
 
         return $this;
     }

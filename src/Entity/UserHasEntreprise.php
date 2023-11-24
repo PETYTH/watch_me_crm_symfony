@@ -2,14 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserHasEntrepriseRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserHasEntrepriseRepository::class)]
-#[ApiResource]
 class UserHasEntreprise
 {
     #[ORM\Id]
@@ -17,61 +13,37 @@ class UserHasEntreprise
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'user_id_entreprise')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $Users_idUsers = null;
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    private ?User $users = null;
 
-    #[ORM\OneToMany(mappedBy: 'Entreprise_id_Entreprise', targetEntity: Entreprise::class)]
-    private Collection $entreprises;
-
-    public function __construct()
-    {
-        $this->entreprises = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'Entreprise')]
+    private ?Entreprise $Entreprise = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUsersIdUsers(): ?User
+    public function getUsers(): ?User
     {
-        return $this->Users_idUsers;
+        return $this->users;
     }
 
-    public function setUsersIdUsers(?User $Users_idUsers): static
+    public function setUsers(?User $users): static
     {
-        $this->Users_idUsers = $Users_idUsers;
+        $this->users = $users;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Entreprise>
-     */
-    public function getEntreprises(): Collection
+    public function getEntreprise(): ?Entreprise
     {
-        return $this->entreprises;
+        return $this->Entreprise;
     }
 
-    public function addEntreprise(Entreprise $entreprise): static
+    public function setEntreprise(?Entreprise $Entreprise): static
     {
-        if (!$this->entreprises->contains($entreprise)) {
-            $this->entreprises->add($entreprise);
-            $entreprise->setEntrepriseIdEntreprise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEntreprise(Entreprise $entreprise): static
-    {
-        if ($this->entreprises->removeElement($entreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($entreprise->getEntrepriseIdEntreprise() === $this) {
-                $entreprise->setEntrepriseIdEntreprise(null);
-            }
-        }
+        $this->Entreprise = $Entreprise;
 
         return $this;
     }

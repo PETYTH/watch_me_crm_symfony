@@ -2,12 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EmployesRepository::class)]
-#[ApiResource]
 class Employes
 {
     #[ORM\Id]
@@ -15,53 +13,37 @@ class Employes
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $idEmploye = null;
-
     #[ORM\Column(length: 255)]
-    private ?string $status = null;
+    private ?string $Status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'employes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?entreprise $employes_id_entreprise = null;
+    #[ORM\ManyToOne(inversedBy: 'Employes_entreprise')]
+    private ?Entreprise $Employes_entreprise = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getIdEmploye(): ?int
-    {
-        return $this->idEmploye;
-    }
-
-    public function setIdEmploye(int $idEmploye): static
-    {
-        $this->idEmploye = $idEmploye;
-
-        return $this;
-    }
-
     public function getStatus(): ?string
     {
-        return $this->status;
+        return $this->Status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(string $Status): static
     {
-        $this->status = $status;
+        $this->Status = $Status;
 
         return $this;
     }
 
-    public function getEmployesIdEntreprise(): ?entreprise
+    public function getEmployesEntreprise(): ?Entreprise
     {
-        return $this->employes_id_entreprise;
+        return $this->Employes_entreprise;
     }
 
-    public function setEmployesIdEntreprise(?entreprise $employes_id_entreprise): static
+    public function setEmployesEntreprise(?Entreprise $Employes_entreprise): static
     {
-        $this->employes_id_entreprise = $employes_id_entreprise;
+        $this->Employes_entreprise = $Employes_entreprise;
 
         return $this;
     }

@@ -2,23 +2,18 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\EntrepriseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EntrepriseRepository::class)]
-#[ApiResource]
 class Entreprise
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\Column]
-    private ?int $id_entreprise = null;
 
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
@@ -38,37 +33,29 @@ class Entreprise
     #[ORM\Column]
     private ?int $chiffre_affaire = null;
 
-    #[ORM\ManyToOne(inversedBy: 'entreprises')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?userhasentreprise $Entreprise_id_Entreprise = null;
+    #[ORM\OneToMany(mappedBy: 'Entreprise', targetEntity: UserHasEntreprise::class)]
+    private Collection $Entreprise;
 
-    #[ORM\OneToMany(mappedBy: 'entreprise', targetEntity: ClientHasEntreprise::class)]
-    private Collection $entreprise_id_client;
+    #[ORM\OneToMany(mappedBy: 'Employes_entreprise', targetEntity: Employes::class)]
+    private Collection $Employes_entreprise;
 
-    #[ORM\OneToMany(mappedBy: 'employes_id_entreprise', targetEntity: Employes::class)]
-    private Collection $employes;
+    #[ORM\OneToMany(mappedBy: 'Entreprise_client', targetEntity: ClientHasEntreprise::class)]
+    private Collection $Entreprise_client;
+
+
+
+
 
     public function __construct()
     {
-        $this->entreprise_id_client = new ArrayCollection();
-        $this->employes = new ArrayCollection();
+        $this->Entreprise = new ArrayCollection();
+        $this->Employes_entreprise = new ArrayCollection();
+        $this->Entreprise_client = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getIdEntreprise(): ?int
-    {
-        return $this->id_entreprise;
-    }
-
-    public function setIdEntreprise(int $id_entreprise): static
-    {
-        $this->id_entreprise = $id_entreprise;
-
-        return $this;
     }
 
     public function getNom(): ?string
@@ -143,14 +130,64 @@ class Entreprise
         return $this;
     }
 
-    public function getEntrepriseIdEntreprise(): ?userhasentreprise
+    /**
+     * @return Collection<int, UserHasEntreprise>
+     */
+    public function getEntreprise(): Collection
     {
-        return $this->Entreprise_id_Entreprise;
+        return $this->Entreprise;
     }
 
-    public function setEntrepriseIdEntreprise(?userhasentreprise $Entreprise_id_Entreprise): static
+    public function addEntreprise(UserHasEntreprise $entreprise): static
     {
-        $this->Entreprise_id_Entreprise = $Entreprise_id_Entreprise;
+        if (!$this->Entreprise->contains($entreprise)) {
+            $this->Entreprise->add($entreprise);
+            $entreprise->setEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEntreprise(UserHasEntreprise $entreprise): static
+    {
+        if ($this->Entreprise->removeElement($entreprise)) {
+            // set the owning side to null (unless already changed)
+            if ($entreprise->getEntreprise() === $this) {
+                $entreprise->setEntreprise(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * @return Collection<int, Employes>
+     */
+    public function getEmployesEntreprise(): Collection
+    {
+        return $this->Employes_entreprise;
+    }
+
+    public function addEmployesEntreprise(Employes $employesEntreprise): static
+    {
+        if (!$this->Employes_entreprise->contains($employesEntreprise)) {
+            $this->Employes_entreprise->add($employesEntreprise);
+            $employesEntreprise->setEmployesEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmployesEntreprise(Employes $employesEntreprise): static
+    {
+        if ($this->Employes_entreprise->removeElement($employesEntreprise)) {
+            // set the owning side to null (unless already changed)
+            if ($employesEntreprise->getEmployesEntreprise() === $this) {
+                $employesEntreprise->setEmployesEntreprise(null);
+            }
+        }
 
         return $this;
     }
@@ -158,60 +195,31 @@ class Entreprise
     /**
      * @return Collection<int, ClientHasEntreprise>
      */
-    public function getEntrepriseIdClient(): Collection
+    public function getEntrepriseClient(): Collection
     {
-        return $this->entreprise_id_client;
+        return $this->Entreprise_client;
     }
 
-    public function addEntrepriseIdClient(ClientHasEntreprise $entrepriseIdClient): static
+    public function addEntrepriseClient(ClientHasEntreprise $entrepriseClient): static
     {
-        if (!$this->entreprise_id_client->contains($entrepriseIdClient)) {
-            $this->entreprise_id_client->add($entrepriseIdClient);
-            $entrepriseIdClient->setEntreprise($this);
+        if (!$this->Entreprise_client->contains($entrepriseClient)) {
+            $this->Entreprise_client->add($entrepriseClient);
+            $entrepriseClient->setEntrepriseClient($this);
         }
 
         return $this;
     }
 
-    public function removeEntrepriseIdClient(ClientHasEntreprise $entrepriseIdClient): static
+    public function removeEntrepriseClient(ClientHasEntreprise $entrepriseClient): static
     {
-        if ($this->entreprise_id_client->removeElement($entrepriseIdClient)) {
+        if ($this->Entreprise_client->removeElement($entrepriseClient)) {
             // set the owning side to null (unless already changed)
-            if ($entrepriseIdClient->getEntreprise() === $this) {
-                $entrepriseIdClient->setEntreprise(null);
+            if ($entrepriseClient->getEntrepriseClient() === $this) {
+                $entrepriseClient->setEntrepriseClient(null);
             }
         }
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Employes>
-     */
-    public function getEmployes(): Collection
-    {
-        return $this->employes;
-    }
-
-    public function addEmploye(Employes $employe): static
-    {
-        if (!$this->employes->contains($employe)) {
-            $this->employes->add($employe);
-            $employe->setEmployesIdEntreprise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEmploye(Employes $employe): static
-    {
-        if ($this->employes->removeElement($employe)) {
-            // set the owning side to null (unless already changed)
-            if ($employe->getEmployesIdEntreprise() === $this) {
-                $employe->setEmployesIdEntreprise(null);
-            }
-        }
-
-        return $this;
-    }
 }

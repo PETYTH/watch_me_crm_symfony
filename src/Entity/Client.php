@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,7 +9,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
-#[ApiResource]
 class Client
 {
     #[ORM\Id]
@@ -24,7 +22,7 @@ class Client
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_naissance = null;
 
     #[ORM\Column(length: 255)]
@@ -37,7 +35,7 @@ class Client
     private ?string $adresse = null;
 
     #[ORM\Column]
-    private ?int $code_postale = null;
+    private ?int $code_postal = null;
 
     #[ORM\Column(length: 255)]
     private ?string $ville = null;
@@ -45,11 +43,22 @@ class Client
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
+    #[ORM\OneToMany(mappedBy: 'Commande_client', targetEntity: Commandes::class)]
+    private Collection $Client_commande;
+
+    #[ORM\OneToMany(mappedBy: 'Client', targetEntity: ClientHasEntreprise::class)]
+    private Collection $Client_entreprise;
+
+    public function __construct()
+    {
+        $this->Client_commande = new ArrayCollection();
+        $this->Client_entreprise = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
-
 
     public function getNom(): ?string
     {
@@ -125,12 +134,12 @@ class Client
 
     public function getCodePostal(): ?int
     {
-        return $this->code_postale;
+        return $this->code_postal;
     }
 
-    public function setCodePostal(int $code_postale): static
+    public function setCodePostal(int $code_postal): static
     {
-        $this->code_postale = $code_postale;
+        $this->code_postal = $code_postal;
 
         return $this;
     }
@@ -158,4 +167,69 @@ class Client
 
         return $this;
     }
+
+
+
+    /**
+     * @return Collection<int, Commandes>
+     */
+    public function getClientCommande(): Collection
+    {
+        return $this->Client_commande;
+    }
+
+    public function addClientCommande(Commandes $clientCommande): static
+    {
+        if (!$this->Client_commande->contains($clientCommande)) {
+            $this->Client_commande->add($clientCommande);
+            $clientCommande->setCommandeClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClientCommande(Commandes $clientCommande): static
+    {
+        if ($this->Client_commande->removeElement($clientCommande)) {
+            // set the owning side to null (unless already changed)
+            if ($clientCommande->getCommandeClient() === $this) {
+                $clientCommande->setCommandeClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClientHasEntreprise>
+     */
+    public function getClientEntreprise(): Collection
+    {
+        return $this->Client_entreprise;
+    }
+
+    public function addClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    {
+        if (!$this->Client_entreprise->contains($clientEntreprise)) {
+            $this->Client_entreprise->add($clientEntreprise);
+            $clientEntreprise->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    {
+        if ($this->Client_entreprise->removeElement($clientEntreprise)) {
+            // set the owning side to null (unless already changed)
+            if ($clientEntreprise->getClient() === $this) {
+                $clientEntreprise->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
 }

@@ -1,5 +1,6 @@
 
 ###> symfony/framework-bundle ###
+/.idea
 /.env
 /.env.local
 /.env.local.php
@@ -7,7 +8,7 @@
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
-/vendor
+/vendor/
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###

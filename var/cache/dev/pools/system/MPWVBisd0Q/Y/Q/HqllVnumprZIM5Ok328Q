@@ -1,0 +1,3 @@
+<?php //ApiPlatform%255CApiResource%255CError%2523createFromException
+
+return [PHP_INT_MAX, []];

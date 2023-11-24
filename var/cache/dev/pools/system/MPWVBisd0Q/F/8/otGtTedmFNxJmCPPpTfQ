@@ -1,0 +1,3 @@
+<?php //Exception%2523getTrace
+
+return [PHP_INT_MAX, []];

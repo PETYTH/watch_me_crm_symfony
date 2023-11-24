@@ -1,0 +1,3 @@
+<?php //Exception%2524line
+
+return [PHP_INT_MAX, []];

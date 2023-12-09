@@ -305,6 +305,6 @@ class __TwigTemplate_e8cfbb9477cd8025b5afc49f0c75ce5b extends Template
         {{- form_rest(form) -}}
     </table>
 {%- endblock form_widget_compound -%}
-", "form_table_layout.html.twig", "C:\\synfony\\CRM_projet_symfony\\vendor\\symfony\\twig-bridge\\Resources\\views\\Form\\form_table_layout.html.twig");
+", "form_table_layout.html.twig", "C:\\xampp\\htdocs\\courstheo\\watchMe-Project\\watch_me_crm_symfony\\vendor\\symfony\\twig-bridge\\Resources\\views\\Form\\form_table_layout.html.twig");
     }
 }

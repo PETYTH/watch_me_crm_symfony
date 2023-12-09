@@ -20,3 +20,19 @@ enum UserRole
         ];
     }
 }
+
+enum UserStatus
+{
+    const DG = 'DG';
+    const SAV = 'SAV';
+    const COMMERCIAL = 'COMMERCIAL';
+
+    public static function getRoles(): array
+    {
+        return [
+            self::DG => 'DG',
+            self::SAV => 'SAV',
+            self::COMMERCIAL => 'COMMERCIAL',
+        ];
+    }
+}

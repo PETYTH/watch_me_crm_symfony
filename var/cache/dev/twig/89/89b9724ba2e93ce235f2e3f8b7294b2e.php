@@ -270,6 +270,6 @@ class __TwigTemplate_6eda42ab0982e90cce2c3a0c34f79684 extends Template
 
     <a href=\"{{ path('app_client_new') }}\">Create new</a>
 {% endblock %}
-", "client/index.html.twig", "C:\\synfony\\CRM_projet_symfony\\templates\\client\\index.html.twig");
+", "client/index.html.twig", "C:\\xampp\\htdocs\\courstheo\\watchMe-Project\\watch_me_crm_symfony\\templates\\client\\index.html.twig");
     }
 }

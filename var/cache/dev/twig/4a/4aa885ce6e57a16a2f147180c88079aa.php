@@ -404,6 +404,6 @@ class __TwigTemplate_5bb110577a60ef298c1f050f4deaa06f extends Template
         </table>
     {%- endfor -%}
 {%- endmacro -%}
-", "@JMSSerializer/Collector/handlers.html.twig", "C:\\synfony\\CRM_projet_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\handlers.html.twig");
+", "@JMSSerializer/Collector/handlers.html.twig", "C:\\xampp\\htdocs\\courstheo\\watchMe-Project\\watch_me_crm_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\handlers.html.twig");
     }
 }

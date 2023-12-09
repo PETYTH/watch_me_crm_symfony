@@ -190,6 +190,6 @@ class __TwigTemplate_f16cdda5b32504c72785fff6efe1afb2 extends Template
         {% block body %}{% endblock %}
     </body>
 </html>
-", "base.html.twig", "C:\\synfony\\CRM_projet_symfony\\templates\\base.html.twig");
+", "base.html.twig", "C:\\xampp\\htdocs\\courstheo\\watchMe-Project\\watch_me_crm_symfony\\templates\\base.html.twig");
     }
 }

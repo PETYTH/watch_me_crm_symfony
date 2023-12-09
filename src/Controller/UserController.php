@@ -85,7 +85,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('user_edit/{id}/', name: 'app_user_edit', methods: ['GET', 'POST'])]
+    #[Route('user_edit/{id}', name: 'app_user_edit', methods: ['PUT'])]
     public function edit(int $id, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($id);
@@ -118,6 +118,7 @@ class UserController extends AbstractController
         $user->setName($name);
         $user->setBirthday(new \DateTime($birthdayFormatted));
         $user->setFirstname($firstname);
+        $user->setModifiedAt(new \DateTime());
 
         $em->flush();
 

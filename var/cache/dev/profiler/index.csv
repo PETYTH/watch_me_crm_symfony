@@ -1002,3 +1002,10 @@ c1f011,127.0.0.1,GET,http://127.0.0.1:8000/api/forgot-password,1702332843,60d096
 4a4a53,127.0.0.1,GET,http://127.0.0.1:8000/api/forgot-password,1702332859,660b75,500
 660b75,127.0.0.1,POST,http://127.0.0.1:8000/api/forgot-password,1702332859,,500
 c291b5,127.0.0.1,POST,http://127.0.0.1:8000/api/forgot-password,1702332900,,200
+56c695,127.0.0.1,OPTIONS,http://127.0.0.1:8000/api/login_check,1702335104,,200
+cecb3e,127.0.0.1,POST,http://127.0.0.1:8000/api/login_check,1702335107,,200
+1032e7,127.0.0.1,OPTIONS,http://127.0.0.1:8000/api/logout,1702335240,,200
+0ea207,127.0.0.1,POST,http://127.0.0.1:8000/api/logout,1702335241,,200
+49a12e,127.0.0.1,POST,http://127.0.0.1:8000/api/login_check,1702335251,,200
+a3a6a3,127.0.0.1,POST,http://127.0.0.1:8000/api/logout,1702335494,,200
+afeed7,127.0.0.1,POST,http://127.0.0.1:8000/api/login_check,1702338150,,200

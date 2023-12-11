@@ -15,24 +15,54 @@ class MailPerso extends EmailSender{
         $this->sendMail($content, $email, $subject);
     }
 
+    public function sendMailEdit($email, $subject, $firstname, $name, $emailContent) {
+        $content = $this->contentAssembly('email.app.email-modified', [
+            'firstname' => $firstname,
+            'name' => $name,
+            'email' => $email,
+            'plainPassword' => $emailContent
+        ]);
+        $this->sendMail($content, $email, $subject);
+    }
 
-    public function sendMailRegisterForgotPassword($email, $subject){
-        $content=$this->contentAssembly('email.app.email-registerForgot');
+
+    public function sendMailResetPassword($email, $subject, $message, $name, $firstname){
+        $content=$this->contentAssembly('email.app.email-registerForgot',[
+            'firstname' => $firstname,
+            'name' => $name,
+            'message'=>$message,
+        ]);
         $mail= new EmailSender();
         $mail->sendMail($content, $email, $subject);
     }
 
-    public  function sendContact($email, $content, $subject){
-        $envoi=$this->contentAssembly('email.app.message-envoye');
-        $content=$this->contentAssembly('email.app.send-contact',array(
-            'subject'=>$subject,
-            'content'=>$content,
-            'email'=>$email,
+    public  function sendMessage($email, $subject, $message, $name, $firstname){
+        $content=$this->contentAssembly('email.app.message-envoye',array(
+            'message'=>$message,
+            'name'=>$name,
+            'firstname'=>$firstname
         ));
         $mail= new EmailSender();
-        $mail->sendMail($envoi, $email, 'Message envoyé !');
-        $mail->sendMail($content, $email, 'Vous avez un message en attente de ' . $email . ' ', true);
+        $mail->sendMail($content, $email, $subject);
+    }
+    public  function ConfirmedResetPassword($email, $subject, $message, $name, $firstname){
+        $content=$this->contentAssembly('email.app.email-resetPassword',array(
+            'message'=>$message,
+            'name'=>$name,
+            'firstname'=>$firstname
+        ));
+        $mail= new EmailSender();
+        $mail->sendMail($content, $email, $subject);
     }
 
+    public  function ConfirmedDelete($email, $subject, $message, $name, $firstname){
+        $content=$this->contentAssembly('email.app.email-delete',array(
+            'message'=>$message,
+            'name'=>$name,
+            'firstname'=>$firstname
+        ));
+        $mail= new EmailSender();
+        $mail->sendMail($content, $email, $subject);
+    }
 
 }

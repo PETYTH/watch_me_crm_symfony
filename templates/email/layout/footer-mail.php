@@ -10,6 +10,7 @@
                      color: #F2F2F2;
                      width: 200px;
                      border-radius: 1rem;
+                     font-weight: bold;
                      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
                      padding: 0.5rem;
                      font-family: 'Philosopher', sans-serif;

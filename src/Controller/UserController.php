@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
+use function Webmozart\Assert\Tests\StaticAnalysis\false;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 
 
@@ -89,8 +93,9 @@ class UserController extends AbstractController
         ]);
     }
 
+
     #[Route('/{id}/user_edit', name: 'app_user_edit', methods: ['POST'])]
-    public function edit(int $id, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    public function edit(int $id, EntityManagerInterface $em, Request $request, MailPerso $mailSender): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($id);
 
@@ -112,40 +117,139 @@ class UserController extends AbstractController
         }
 
         $birthdayFormatted = $birthday->format('Y-m-d');
-        $plainPassword = $decoded->password;
         $selectedRole = $decoded->roles[0] ?? UserRole::EMPLOYE;
 
-        $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+        // Utilisation de l'ancien mot de passe de la base de données sans le modifier
+        $oldPassword = $user->getPassword();
+
         $user->setEmail($email);
-        $user->setPassword($hashedPassword);
         $user->setRoles([$selectedRole]);
         $user->setName($name);
         $user->setBirthday(new \DateTime($birthdayFormatted));
         $user->setFirstname($firstname);
         $user->setModifiedAt(new \DateTime());
 
+        // Utilisation de l'ancien mot de passe stocké en base de données
+        $user->setPassword($oldPassword);
+
+        $em->persist($user);
         $em->flush();
 
+        $subject = 'Mise à jour des vos informations Nous avons enregistré les modifications que vous avez apportées à votre profil';
+        $message = 'Vos informations ont été mises à jour.';
+
+        // Utilisation de la méthode sendMailResetPassword de MailPerso
+        $mailSender->sendMessage($email, $subject, $message, $name, $firstname);
         return $this->json([
             'message' => 'Utilisateur mis à jour avec succès',
             'success' => true,
         ]);
     }
 
-    #[Route('/{id}/user_delete', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(int $id, EntityManagerInterface $entityManager): JsonResponse
-    {
+    #[Route('/forgot-password', name: 'app_forgot_password', methods: ['POST'])]
+    public function forgetPassword(Request $request, MailPerso $mailSender, EntityManagerInterface $entityManager, TokenGeneratorInterface $tokenGenerator): JsonResponse {
+        $decoded = json_decode($request->getContent());
+        $email = $decoded->email;
+        $name = $decoded->name;
+        $firstname = $decoded->firstname;
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if ($user) {
+            $token = $tokenGenerator->generateToken();
+            $user->setResetToken($token);
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $resetUrl = 'http://localhost:4200/auth/forget/form?token=' . $token; // Utilisation de RequestStack pour obtenir l'URL complète
+
+            $subject = 'Réinitialisation de mot de passe';
+            $message = $resetUrl;
+
+            // Utilisation de la méthode sendMailResetPassword de MailPerso
+            $mailSender->sendMailResetPassword($email, $subject, $message, $name, $firstname);
+
+            return $this->json([
+                'message' => 'Un e-mail de réinitialisation a été envoyé à votre adresse.',
+                'success' => true,
+            ]);
+        }
+        return $this->json([
+            'message' => 'Aucun compte associé à cet e-mail.',
+            'success' => false,
+        ]);
+    }
+
+    #[Route('/reset-password', name: 'app_reset_password', methods: ['POST'])]
+    public function resetPassword(Request $request, UserPasswordHasherInterface $passwordHasher, MailPerso $mailSender, EntityManagerInterface $entityManager): JsonResponse {
+        $decoded = json_decode($request->getContent(), true);
+        $token = $decoded['token'];
+        $newPassword = $decoded['newPassword'];
+        $email = $decoded->email;
+        $name = $decoded->name;
+        $firstname = $decoded->firstname;
+
+        if (!$token || !$newPassword) {
+            return $this->json([
+                'message' => 'Token ou nouveau mot de passe manquant',
+                'success'=>false,
+                ]);
+        }
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['resetToken' => $token]);
+
+        if (!$user) {
+            return $this->json([
+            'message' => 'Aucun utilisateur trouvé pour ce token',
+                'success'=>false,
+            ]);
+        }
+
+        // Réinitialisation du mot de passe pour l'utilisateur
+        $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+        $user->setPassword($hashedPassword);
+        $user->setResetToken(null); // Effacement du token après réinitialisation du mot de passe
+        $user->setModifiedAt(new \DateTime());
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $subject = 'Réinitialisation de mot de passe';
+        $message = 'Votre mot de passe a été réinitialisé avec succès';
+
+        // Utilisation de la méthode sendMailResetPassword de MailPerso
+        $mailSender->ConfirmedResetPassword($email, $subject, $message, $name, $firstname);
+        return $this->json([
+        'message' => 'Mot de passe réinitialisé avec succès',
+            'success' => true
+        ]);
+    }
+
+    #[Route('/{id}/user_delete', name: 'app_user_delete', methods: ['GET', 'POST'])]
+    public function delete(int $id, Request $request, EntityManagerInterface $entityManager, MailPerso $mailSender): JsonResponse{
+        $decoded = json_decode($request->getContent());
+        $email = $decoded->email;
+        $name = $decoded->name;
+        $firstname = $decoded->firstname;
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
             return new JsonResponse(['message' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
         }
         $entityManager->remove($user);
+        $entityManager->persist($user);
         $entityManager->flush();
 
+        $subject = 'Suppression de votre compte';
+        $message = 'Votre compte a été supprimé';
+
+        // Utilisation de la méthode sendMailResetPassword de MailPerso
+        $mailSender->ConfirmedDelete($email, $subject, $message, $name, $firstname);
         return $this->json([
             'message' => 'Utilisateur supprimé avec succès',
             'success' => true,
         ]);
     }
+
 }
+

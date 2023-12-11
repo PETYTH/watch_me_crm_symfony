@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\MailPerso;
 use DateTime;
 use App\Repository\UserRepository;
 use App\Entity\User;
@@ -13,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 
 
@@ -30,7 +30,7 @@ class UserController extends AbstractController
 
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    public function register(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher,  MailPerso $mailSender  ): JsonResponse
     {
         $decoded = json_decode($request->getContent());
         $email = $decoded->email;
@@ -67,17 +67,21 @@ class UserController extends AbstractController
         $user->setFirstname($firstname);
         $user->setCreatedAt(new \DateTime());
 
+        // Envoi d'un e-mail à l'utilisateur avec son identifiant (email) et le mot de passe
+        $subject = 'Confirmation d\'inscription';
+        $mailSender->sendMailRegister($email, $subject, $firstname, $name, $plainPassword);
+
         $em->persist($user);
         $em->flush();
 
         return $this->json([
-            'message' => 'Vous avez été ajouté',
+            'message' => 'Inscription réussie. Un e-mail de confirmation a été envoyé avec vos identifiants de connexion.',
             'success' => true,
         ]);
 
     }
 
-    #[Route('user_show/{id}', name: 'app_user_show', methods: ['GET'])]
+    #[Route('/{id}/show', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): JsonResponse
     {
         return $this->json([
@@ -85,7 +89,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('user_edit/{id}', name: 'app_user_edit', methods: ['PUT'])]
+    #[Route('/{id}/user_edit', name: 'app_user_edit', methods: ['POST'])]
     public function edit(int $id, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($id);
@@ -128,13 +132,16 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('user_delete/{id}', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/{id}/user_delete', name: 'app_user_delete', methods: ['POST'])]
+    public function delete(int $id, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['message' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
         }
+        $entityManager->remove($user);
+        $entityManager->flush();
 
         return $this->json([
             'message' => 'Utilisateur supprimé avec succès',

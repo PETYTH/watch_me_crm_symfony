@@ -24,6 +24,7 @@
       <parameter key="NelmioCorsBundle">Nelmio\CorsBundle\NelmioCorsBundle</parameter>
       <parameter key="ApiPlatformBundle">ApiPlatform\Symfony\Bundle\ApiPlatformBundle</parameter>
       <parameter key="FOSRestBundle">FOS\RestBundle\FOSRestBundle</parameter>
+      <parameter key="SensioFrameworkExtraBundle">Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle</parameter>
     </parameter>
     <parameter key="kernel.bundles_metadata" type="collection">
       <parameter key="FrameworkBundle" type="collection">
@@ -85,6 +86,10 @@
       <parameter key="FOSRestBundle" type="collection">
         <parameter key="path">C:\synfony\CRM_projet_symfony\vendor\friendsofsymfony\rest-bundle</parameter>
         <parameter key="namespace">FOS\RestBundle</parameter>
+      </parameter>
+      <parameter key="SensioFrameworkExtraBundle" type="collection">
+        <parameter key="path">C:\synfony\CRM_projet_symfony\vendor\sensio\framework-extra-bundle\src</parameter>
+        <parameter key="namespace">Sensio\Bundle\FrameworkExtraBundle</parameter>
       </parameter>
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
@@ -583,6 +588,7 @@
         <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\EntrepriseController"/>
       </call>
     </service>
+    <service id="App\Controller\MailPerso" class="App\Controller\MailPerso" autowire="true" autoconfigure="true"/>
     <service id="App\Controller\ProduitsController" class="App\Controller\ProduitsController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -672,6 +678,7 @@
     <service id="App\Security\AuthenticationSuccessHandler" class="App\Security\AuthenticationSuccessHandler" autowire="true" autoconfigure="true">
       <argument type="service" id="lexik_jwt_authentication.jwt_manager"/>
     </service>
+    <service id="App\Services\EmailSender" class="App\Services\EmailSender" autowire="true" autoconfigure="true"/>
     <service id="argument_metadata_factory" class="Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory"/>
     <service id="argument_resolver.backed_enum_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver">
       <tag priority="100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver">controller.argument_value_resolver</tag>
@@ -699,7 +706,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.XCpLWDF"/>
+      <argument type="service" id=".service_locator.8_18kzg"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -2422,6 +2429,7 @@
           <argument>C:\synfony\CRM_projet_symfony\vendor\nelmio\cors-bundle/translations</argument>
           <argument>C:\synfony\CRM_projet_symfony\vendor\api-platform\core\src\Symfony\Bundle/translations</argument>
           <argument>C:\synfony\CRM_projet_symfony\vendor\friendsofsymfony\rest-bundle/translations</argument>
+          <argument>C:\synfony\CRM_projet_symfony\vendor\sensio\framework-extra-bundle\src/translations</argument>
         </argument>
         <argument key="cache_vary" type="collection">
           <argument key="scanned_directories" type="collection">
@@ -2444,6 +2452,7 @@
             <argument>C:\synfony\CRM_projet_symfony\vendor\nelmio\cors-bundle/translations</argument>
             <argument>C:\synfony\CRM_projet_symfony\vendor\api-platform\core\src\Symfony\Bundle/translations</argument>
             <argument>C:\synfony\CRM_projet_symfony\vendor\friendsofsymfony\rest-bundle/translations</argument>
+            <argument>C:\synfony\CRM_projet_symfony\vendor\sensio\framework-extra-bundle\src/translations</argument>
           </argument>
         </argument>
       </argument>
@@ -3430,6 +3439,70 @@
         <argument>0</argument>
       </call>
       <call method="addListener">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.controller.listener"/>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.converter.listener"/>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.view.listener"/>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.view</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.view.listener"/>
+          <argument>onKernelView</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.cache.listener"/>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.cache.listener"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="sensio_framework_extra.security.listener"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="framework_extra_bundle.event.is_granted"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
         <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
         <argument type="collection">
           <argument type="service_closure" id="security.listener.csrf_protection"/>
@@ -3459,7 +3532,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.XCpLWDF"/>
+      <argument type="service" id=".service_locator.8_18kzg"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <argument type="service" id="request_stack"/>
@@ -9482,6 +9555,80 @@
     <service id="fos_rest.serializer.form_error_normalizer" class="FOS\RestBundle\Serializer\Normalizer\FormErrorNormalizer">
       <tag name="serializer.normalizer" priority="-10"/>
     </service>
+    <service id="sensio_framework_extra.controller.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\ControllerListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="annotations.cached_reader"/>
+    </service>
+    <service id="sensio_framework_extra.converter.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\ParamConverterListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="sensio_framework_extra.converter.manager"/>
+      <argument>true</argument>
+    </service>
+    <service id="sensio_framework_extra.converter.manager" class="Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterManager">
+      <call method="add">
+        <argument type="service" id="sensio_framework_extra.converter.doctrine.orm"/>
+        <argument>0</argument>
+        <argument>doctrine.orm</argument>
+      </call>
+      <call method="add">
+        <argument type="service" id="framework_extra_bundle.date_time_param_converter"/>
+        <argument>0</argument>
+        <argument>datetime</argument>
+      </call>
+    </service>
+    <service id="sensio_framework_extra.converter.doctrine.orm" class="Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DoctrineParamConverter">
+      <tag name="request.param_converter" converter="doctrine.orm"/>
+      <argument type="service" id="doctrine" on-invalid="ignore"/>
+      <argument type="service" id="sensio_framework_extra.converter.doctrine.orm.expression_language.default" on-invalid="null"/>
+    </service>
+    <service id="framework_extra_bundle.date_time_param_converter" class="Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DateTimeParamConverter">
+      <tag name="request.param_converter" converter="datetime"/>
+    </service>
+    <service id="sensio_framework_extra.converter.doctrine.orm.expression_language.default" class="Symfony\Component\ExpressionLanguage\ExpressionLanguage"/>
+    <service id="sensio_framework_extra.view.guesser" class="Sensio\Bundle\FrameworkExtraBundle\Templating\TemplateGuesser">
+      <argument type="service" id="kernel"/>
+    </service>
+    <service id="sensio_framework_extra.view.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener">
+      <tag name="container.service_subscriber" id="twig"/>
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="sensio_framework_extra.view.guesser"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.xRhNObu.sensio_framework_extra.view.listener"/>
+      </call>
+    </service>
+    <service id="sensio_framework_extra.cache.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\HttpCacheListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <tag name="container.hot_path"/>
+    </service>
+    <service id="sensio_framework_extra.security.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\SecurityListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="framework_extra_bundle.argument_name_convertor"/>
+      <argument type="service" id="sensio_framework_extra.security.expression_language.default" on-invalid="null"/>
+      <argument type="service" id="security.authentication.trust_resolver" on-invalid="null"/>
+      <argument type="service" id="security.role_hierarchy" on-invalid="null"/>
+      <argument type="service" id="security.token_storage" on-invalid="null"/>
+      <argument type="service" id="security.authorization_checker" on-invalid="null"/>
+      <argument type="service" id="monolog.logger" on-invalid="null"/>
+    </service>
+    <service id="sensio_framework_extra.security.expression_language.default" class="Sensio\Bundle\FrameworkExtraBundle\Security\ExpressionLanguage">
+      <call method="registerProvider">
+        <argument type="service" id="api_platform.security.expression_language_provider"/>
+      </call>
+    </service>
+    <service id="framework_extra_bundle.event.is_granted" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\IsGrantedListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="framework_extra_bundle.argument_name_convertor"/>
+      <argument type="service" id="security.authorization_checker" on-invalid="null"/>
+    </service>
+    <service id="framework_extra_bundle.argument_name_convertor" class="Sensio\Bundle\FrameworkExtraBundle\Request\ArgumentNameConverter">
+      <argument type="service" id="argument_metadata_factory"/>
+    </service>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ClientController" class="App\Controller\ClientController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ClientController" class="App\Controller\ClientController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\ClientController" class="App\Controller\ClientController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -9944,10 +10091,10 @@
         <argument key="clientRepository" type="service_closure" id="App\Repository\ClientRepository"/>
       </argument>
     </service>
-    <service id=".service_locator.CsMkqUa" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.9kKwU2t" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
       </argument>
     </service>
     <service id=".service_locator.lTbvCHw" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -9960,6 +10107,12 @@
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="client" type="service_closure" id=".errored..service_locator.q74EK0j.App\Entity\Client"/>
+        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.CsMkqUa" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
         <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
       </argument>
     </service>
@@ -10064,10 +10217,11 @@
         <argument key="userRepository" type="service_closure" id="App\Repository\UserRepository"/>
       </argument>
     </service>
-    <service id=".service_locator.81LTOQ7" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.tQLKfHw" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="mailSender" type="service_closure" id="App\Controller\MailPerso"/>
         <argument key="passwordHasher" type="service_closure" id="security.user_password_hasher"/>
       </argument>
     </service>
@@ -10077,20 +10231,20 @@
         <argument key="user" type="service_closure" id=".errored..service_locator.Hz5btge.App\Entity\User"/>
       </argument>
     </service>
-    <service id=".service_locator.rvMNZGh" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.81LTOQ7" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
-        <argument key="user" type="service_closure" id=".errored..service_locator.rvMNZGh.App\Entity\User"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="passwordHasher" type="service_closure" id="security.user_password_hasher"/>
       </argument>
     </service>
-    <service id=".service_locator.XCpLWDF" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.8_18kzg" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="App\Controller\ClientController::delete" type="service_closure" id=".service_locator.q74EK0j"/>
+        <argument key="App\Controller\ClientController::delete" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\ClientController::edit" type="service_closure" id=".service_locator.q74EK0j"/>
         <argument key="App\Controller\ClientController::index" type="service_closure" id=".service_locator.sUhGGzt"/>
-        <argument key="App\Controller\ClientController::new" type="service_closure" id=".service_locator.CsMkqUa"/>
+        <argument key="App\Controller\ClientController::new" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\ClientController::show" type="service_closure" id=".service_locator.lTbvCHw"/>
         <argument key="App\Controller\CommandesController::delete" type="service_closure" id=".service_locator.I_2x5aQ"/>
         <argument key="App\Controller\CommandesController::edit" type="service_closure" id=".service_locator.I_2x5aQ"/>
@@ -10117,19 +10271,19 @@
         <argument key="App\Controller\StocksController::index" type="service_closure" id=".service_locator.rXgVSdR"/>
         <argument key="App\Controller\StocksController::new" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\StocksController::show" type="service_closure" id=".service_locator.UOcIwVq"/>
-        <argument key="App\Controller\UserController::delete" type="service_closure" id=".service_locator.rvMNZGh"/>
+        <argument key="App\Controller\UserController::delete" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\UserController::edit" type="service_closure" id=".service_locator.81LTOQ7"/>
         <argument key="App\Controller\UserController::index" type="service_closure" id=".service_locator.kPUOGb8"/>
-        <argument key="App\Controller\UserController::register" type="service_closure" id=".service_locator.81LTOQ7"/>
+        <argument key="App\Controller\UserController::register" type="service_closure" id=".service_locator.tQLKfHw"/>
         <argument key="App\Controller\UserController::show" type="service_closure" id=".service_locator.Hz5btge"/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
-        <argument key="App\Controller\ClientController:delete" type="service_closure" id=".service_locator.q74EK0j"/>
+        <argument key="App\Controller\ClientController:delete" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\ClientController:edit" type="service_closure" id=".service_locator.q74EK0j"/>
         <argument key="App\Controller\ClientController:index" type="service_closure" id=".service_locator.sUhGGzt"/>
-        <argument key="App\Controller\ClientController:new" type="service_closure" id=".service_locator.CsMkqUa"/>
+        <argument key="App\Controller\ClientController:new" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\ClientController:show" type="service_closure" id=".service_locator.lTbvCHw"/>
         <argument key="App\Controller\CommandesController:delete" type="service_closure" id=".service_locator.I_2x5aQ"/>
         <argument key="App\Controller\CommandesController:edit" type="service_closure" id=".service_locator.I_2x5aQ"/>
@@ -10156,10 +10310,10 @@
         <argument key="App\Controller\StocksController:index" type="service_closure" id=".service_locator.rXgVSdR"/>
         <argument key="App\Controller\StocksController:new" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\StocksController:show" type="service_closure" id=".service_locator.UOcIwVq"/>
-        <argument key="App\Controller\UserController:delete" type="service_closure" id=".service_locator.rvMNZGh"/>
+        <argument key="App\Controller\UserController:delete" type="service_closure" id=".service_locator.CsMkqUa"/>
         <argument key="App\Controller\UserController:edit" type="service_closure" id=".service_locator.81LTOQ7"/>
         <argument key="App\Controller\UserController:index" type="service_closure" id=".service_locator.kPUOGb8"/>
-        <argument key="App\Controller\UserController:register" type="service_closure" id=".service_locator.81LTOQ7"/>
+        <argument key="App\Controller\UserController:register" type="service_closure" id=".service_locator.tQLKfHw"/>
         <argument key="App\Controller\UserController:show" type="service_closure" id=".service_locator.Hz5btge"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
@@ -11102,6 +11256,18 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.etVElvN" method="withContext"/>
     </service>
+    <service id=".service_locator.xRhNObu" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
+      </argument>
+    </service>
+    <service id=".service_locator.xRhNObu.sensio_framework_extra.view.listener" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="sensio_framework_extra.view.listener"/>
+      <argument>sensio_framework_extra.view.listener</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.xRhNObu" method="withContext"/>
+    </service>
     <service id=".service_locator.Lo8jEUu" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -11675,9 +11841,6 @@
     </service>
     <service id=".errored..service_locator.Hz5btge.App\Entity\User" class="App\Entity\User">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.Hz5btge&quot;: it needs an instance of &quot;App\Entity\User&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
-    </service>
-    <service id=".errored..service_locator.rvMNZGh.App\Entity\User" class="App\Entity\User">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.rvMNZGh&quot;: it needs an instance of &quot;App\Entity\User&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".console.command.about.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>about</argument>
@@ -12983,9 +13146,11 @@
     <service id="FOS\RestBundle\View\ViewHandlerInterface" alias="fos_rest.view_handler.default"/>
     <service id="FOS\RestBundle\Request\ParamFetcherInterface" alias="fos_rest.request.param_fetcher"/>
     <service id="fos_rest.view_handler" alias="fos_rest.view_handler.default" public="true"/>
+    <service id="sensio_framework_extra.converter.doctrine.orm.expression_language" alias="sensio_framework_extra.converter.doctrine.orm.expression_language.default"/>
+    <service id="sensio_framework_extra.security.expression_language" alias="sensio_framework_extra.security.expression_language.default"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.7nzbL4K" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.XCpLWDF"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.8_18kzg"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -13017,8 +13182,8 @@
     <service id=".service_locator.QOQgsGN" alias=".service_locator.RIwnuN3"/>
     <service id=".service_locator.ncqjEoB" alias=".service_locator.T7GJGV9"/>
     <service id=".service_locator.WerWjdv" alias=".service_locator.oViGa3A"/>
-    <service id=".service_locator.R0Sb2kd" alias=".service_locator.rvMNZGh"/>
-    <service id=".service_locator.Zgk5yU2" alias=".service_locator.XCpLWDF"/>
+    <service id=".service_locator.NOMuBga" alias=".service_locator.tQLKfHw"/>
+    <service id=".service_locator.ju.cq4Y" alias=".service_locator.8_18kzg"/>
     <service id=".service_locator.BFrsqsn" alias=".service_locator.F9PKc.7"/>
     <service id=".service_locator.ppbcJu_" alias=".service_locator.JSQsYOx"/>
     <service id=".service_locator.jij13qc" alias=".service_locator.PBToVFE"/>
@@ -13109,9 +13274,10 @@
     <service id=".service_locator.Xbsa8iG" alias="api_platform.filter_locator"/>
     <service id=".service_locator.gFlme_s" alias=".service_locator.y4_Zrx."/>
     <service id=".service_locator..r890Xk" alias=".service_locator.sUhGGzt"/>
-    <service id=".service_locator.9e2t_lq" alias=".service_locator.CsMkqUa"/>
+    <service id=".service_locator.gaTSUXr" alias=".service_locator.9kKwU2t"/>
     <service id=".service_locator.s0WpMKf" alias=".service_locator.lTbvCHw"/>
     <service id=".service_locator.AwR7YRq" alias=".service_locator.q74EK0j"/>
+    <service id=".service_locator.9e2t_lq" alias=".service_locator.CsMkqUa"/>
     <service id=".service_locator.jOuAlEG" alias=".service_locator.MxhKzMF"/>
     <service id=".service_locator.jfAYcqj" alias=".service_locator.jDqt1lr"/>
     <service id=".service_locator.iLE4cxL" alias=".service_locator.I_2x5aQ"/>
@@ -13128,9 +13294,9 @@
     <service id=".service_locator.FXTGw96" alias=".service_locator.UOcIwVq"/>
     <service id=".service_locator.iwdqURM" alias=".service_locator.oViGa3A"/>
     <service id=".service_locator.025Wi8b" alias=".service_locator.kPUOGb8"/>
-    <service id=".service_locator.PgYGRUQ" alias=".service_locator.81LTOQ7"/>
+    <service id=".service_locator.flV9dtx" alias=".service_locator.tQLKfHw"/>
     <service id=".service_locator.EmZ4cZI" alias=".service_locator.Hz5btge"/>
-    <service id=".service_locator.ICTRhpx" alias=".service_locator.rvMNZGh"/>
+    <service id=".service_locator.PgYGRUQ" alias=".service_locator.81LTOQ7"/>
     <service id=".service_locator.Q1z.f9O" alias=".service_locator.O2p6Lk7"/>
     <service id=".service_locator.B_yLtTQ" alias=".service_locator.Lo8jEUu"/>
     <service id=".service_locator.ro9MXaF" alias=".service_locator.Oannbdp"/>

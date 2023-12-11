@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'symfony/skeleton',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '084a9800f55bf019f60918465bd752910de7c706',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '3dbe8211760db16cf2d193b58802582fb3d6684d',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -346,6 +346,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v6.9.1',
+            'version' => '6.9.1.0',
+            'reference' => '039de174cd9c17a8389754d3b877a2ed22743e18',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'phpstan/phpdoc-parser' => array(
             'pretty_version' => '1.24.3',
             'version' => '1.24.3.0',
@@ -655,6 +664,15 @@
             'install_path' => __DIR__ . '/../sebastian/version',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'sensio/framework-extra-bundle' => array(
+            'pretty_version' => 'v6.2.10',
+            'version' => '6.2.10.0',
+            'reference' => '2f886f4b31f23c76496901acaedfedb6936ba61f',
+            'type' => 'symfony-bundle',
+            'install_path' => __DIR__ . '/../sensio/framework-extra-bundle',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'symfony/asset' => array(
             'pretty_version' => 'v6.3.8',
@@ -1236,9 +1254,9 @@
             ),
         ),
         'symfony/skeleton' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '084a9800f55bf019f60918465bd752910de7c706',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '3dbe8211760db16cf2d193b58802582fb3d6684d',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

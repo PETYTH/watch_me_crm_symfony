@@ -23,7 +23,8 @@ class Produits
     private ?string $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'Stock_produit')]
-    private ?stocks $produit_stock = null;
+    #[Groups(["produit"])]
+    private ?Stocks $produit_stock = null;
 
     public function getId(): ?int
     {
@@ -66,12 +67,13 @@ class Produits
         return $this;
     }
 
-    public function getProduitStock(): ?stocks
+    #[Groups(["produit"])]
+    public function getProduitStock(): ?Stocks
     {
         return $this->produit_stock;
     }
 
-    public function setProduitStock(?stocks $produit_stock): static
+    public function setProduitStock(?Stocks $produit_stock): static
     {
         $this->produit_stock = $produit_stock;
 

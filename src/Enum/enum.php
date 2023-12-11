@@ -36,3 +36,19 @@ enum UserStatus
         ];
     }
 }
+
+enum CommandeStatus
+{
+    const en_cours = 'en_cours';
+    const effectue = 'effectue';
+    const annule = 'annule';
+
+    public static function getCommandeStatus(): array
+    {
+        return [
+            self::en_cours => 'en_cours',
+            self::effectue => 'effectue',
+            self::annule => 'annule',
+        ];
+    }
+}

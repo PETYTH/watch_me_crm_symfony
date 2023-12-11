@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Client;
 use App\Entity\Commandes;
+use App\Enum\CommandeStatus;
 use App\Form\CommandesType;
 use App\Repository\CommandesRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +15,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/commandes')]
+#[Route('/api')]
 class CommandesController extends AbstractController
 {
-    #[Route('/', name: 'app_commandes_index', methods: ['GET'])]
+    #[Route('/all_commandes', name: 'app_commandes_index', methods: ['GET'])]
     public function index(CommandesRepository $commandesRepository): JsonResponse
     {
         return $this->json([
@@ -24,19 +26,24 @@ class CommandesController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_commandes_new', methods: ['GET', 'POST'])]
+    #[Route('/new_commande', name: 'app_commandes_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
+        $date = \DateTime::createFromFormat('d-m-Y', $decoded->date)->format('Y-m-d');
+
         $commande = new Commandes();
+        $commandeClientId = $entityManager->getRepository(Client::class)->find($decoded->commande_client_id);
+        $commande->setCommandeClient($commandeClientId);
         $commande->setNumero($decoded->numero);
-        $commande->setDate(DateTimeImmutable::createFromFormat('Y-m-d', $decoded->date));
+        $commande->setDate(new \DateTime($date));
         $commande->setPaiement($decoded->paiement);
         $commande->setAdresse($decoded->adresse);
         $commande->setCodePostal($decoded->code_postal);
         $commande->setVille($decoded->ville);
-        $commande->setStatus($decoded->status);
+        $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
+        $commande->setStatus($selectedStatus);
 
         $entityManager->persist($commande);
         $entityManager->flush();
@@ -47,7 +54,7 @@ class CommandesController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'app_commandes_show', methods: ['GET'])]
+    #[Route('/{id}/show_commande', name: 'app_commandes_show', methods: ['GET'])]
     public function show(Commandes $commande): JsonResponse
     {
         return $this->json([
@@ -62,18 +69,21 @@ class CommandesController extends AbstractController
                 'ville' => $commande->getVille(),
                 'status' => $commande->getStatus(),
             ],
-        ]);
+        ], 200, [], ['groups' => 'commande']);
     }
 
 
-    #[Route('/{id}/edit', name: 'app_commandes_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit_commande', name: 'app_commandes_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Commandes $commande, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
-        $commande->setCommandeClient($decoded->commande_client_id);
+        $date = \DateTime::createFromFormat('d-m-Y', $decoded->date)->format('Y-m-d');
+
+        $commandeClientId = $entityManager->getRepository(Client::class)->find($decoded->commande_client_id);
+        $commande->setCommandeClient($commandeClientId);
         $commande->setNumero($decoded->numero);
-        $commande->setDate(DateTime::createFromFormat('Y-m-d', $decoded->date));
+        $commande->setDate(new \DateTime($date));
         $commande->setPaiement($decoded->paiement);
         $commande->setAdresse($decoded->adresse);
         $commande->setCodePostal($decoded->code_postal);
@@ -87,22 +97,15 @@ class CommandesController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_commandes_delete', methods: ['POST'])]
+    #[Route('/{id}/delete_commande', name: 'app_commandes_delete', methods: ['POST'])]
     public function delete(Request $request, Commandes $commande, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$commande->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($commande);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'La commande a été supprimée avec succès.',
-            ]);
-        }
+        $entityManager->remove($commande);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La suppression de la commande a échoué. Veuillez vérifier le jeton CSRF.',
+            'success' => true,
+            'message' => 'La commande a été supprimée avec succès.',
         ]);
     }
 

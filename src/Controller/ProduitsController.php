@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Produits;
+use App\Entity\Stocks;
 use App\Form\ProduitsType;
 use App\Repository\ProduitsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,10 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/produits')]
+#[Route('/api')]
 class ProduitsController extends AbstractController
 {
-    #[Route('/', name: 'app_produits_index', methods: ['GET'])]
+    #[Route('/all_produits', name: 'app_produits_index', methods: ['GET'])]
     public function index(ProduitsRepository $produitsRepository): JsonResponse
     {
         return $this->json([
@@ -23,37 +24,28 @@ class ProduitsController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_produits_new', methods: ['POST'])]
+    #[Route('/new_produit', name: 'app_produits_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
         $produit = new Produits();
-        $produit->setProduitStock($decoded->produit_stock_id);
+        $produitStockId = $entityManager->getRepository(Stocks::class)->find($decoded->produit_stock_id);
+        $produit->setProduitStock($produitStockId);
         $produit->setNom($decoded->nom);
         $produit->setPrix($decoded->prix);
         $produit->setImage($decoded->image);
 
-        $form = $this->createForm(ProduitsType::class, $produit);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->persist($produit);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Le nouveau produit a été ajouté avec succès.',
-            ]);
-        }
+        $entityManager->persist($produit);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La création du produit a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'Le nouveau produit a été ajouté avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_produits_show', methods: ['GET'])]
+    #[Route('/{id}/show_produit', name: 'app_produits_show', methods: ['GET'])]
     public function show(Produits $produit): JsonResponse
     {
         return $this->json([
@@ -64,53 +56,38 @@ class ProduitsController extends AbstractController
                 'prix' => $produit->getPrix(),
                 'image' => $produit->getImage(),
             ],
-        ]);
+        ], 200, [], ['groups' => 'produit']);
     }
 
-    #[Route('/{id}/edit', name: 'app_produits_edit', methods: ['POST'])]
+
+    #[Route('/{id}/edit_produit', name: 'app_produits_edit', methods: ['POST'])]
     public function edit(Request $request, Produits $produit, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
-        $produit->setProduitStock($decoded->produit_stock_id);
+        $produitStockId = $entityManager->getRepository(Stocks::class)->find($decoded->produit_stock_id);
+        $produit->setProduitStock($produitStockId);
         $produit->setNom($decoded->nom);
         $produit->setPrix($decoded->prix);
         $produit->setImage($decoded->image);
 
-        $form = $this->createForm(ProduitsType::class, $produit);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Les informations du produit ont été mises à jour avec succès.',
-            ]);
-        }
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La mise à jour du produit a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'Les informations du produit ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_produits_delete', methods: ['POST'])]
-    public function delete(Request $request, Produits $produit, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/{id}/delete_produit', name: 'app_produits_delete', methods: ['POST'])]
+    public function delete(Produits $produit, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$produit->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($produit);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Le produit a été supprimé avec succès.',
-            ]);
-        }
+        $entityManager->remove($produit);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La suppression du produit a échoué. Veuillez vérifier le jeton CSRF.',
+            'success' => true,
+            'message' => 'Le produit a été supprimé avec succès.',
         ]);
     }
 }

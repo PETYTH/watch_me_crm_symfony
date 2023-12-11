@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Employes;
 use App\Entity\Entreprise;
 use App\Form\EntrepriseType;
 use App\Repository\EntrepriseRepository;
@@ -12,10 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/entreprise')]
+#[Route('/api')]
 class EntrepriseController extends AbstractController
 {
-    #[Route('/', name: 'app_entreprise_index', methods: ['GET'])]
+    #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]
     public function index(EntrepriseRepository $entrepriseRepository): JsonResponse
     {
         return $this->json([
@@ -23,7 +24,7 @@ class EntrepriseController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_entreprise_new', methods: ['POST'])]
+    #[Route('/new_entreprise', name: 'app_entreprise_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
@@ -36,26 +37,16 @@ class EntrepriseController extends AbstractController
         $entreprise->setVille($decoded->ville);
         $entreprise->setChiffreAffaire($decoded->chiffre_affaire);
 
-        $form = $this->createForm(EntrepriseType::class, $entreprise);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->persist($entreprise);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'La nouvelle entreprise a été ajoutée avec succès.',
-            ]);
-        }
+        $entityManager->persist($entreprise);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La création de l\'entreprise a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'La nouvelle entreprise a été ajoutée avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_entreprise_show', methods: ['GET'])]
+    #[Route('/{id}/show_entreprise', name: 'app_entreprise_show', methods: ['GET'])]
     public function show(Entreprise $entreprise): JsonResponse
     {
         return $this->json([
@@ -71,7 +62,7 @@ class EntrepriseController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_entreprise_edit', methods: ['POST'])]
+    #[Route('/{id}/edit_entreprise', name: 'app_entreprise_edit', methods: ['POST'])]
     public function edit(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
@@ -83,40 +74,25 @@ class EntrepriseController extends AbstractController
         $entreprise->setVille($decoded->ville);
         $entreprise->setChiffreAffaire($decoded->chiffre_affaire);
 
-        $form = $this->createForm(EntrepriseType::class, $entreprise);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Les informations de l\'entreprise ont été mises à jour avec succès.',
-            ]);
-        }
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La mise à jour de l\'entreprise a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'Les informations de l\'entreprise ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_entreprise_delete', methods: ['POST'])]
+    #[Route('/{id}/delete_entreprise', name: 'app_entreprise_delete', methods: ['POST'])]
     public function delete(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$entreprise->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($entreprise);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'L\'entreprise a été supprimée avec succès.',
-            ]);
-        }
+        $employe = $entityManager->getRepository(Employes::class)->findOneBy(['Employes_entreprise' => $entreprise]);
+        $entityManager->remove($employe);
+        $entityManager->remove($entreprise);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La suppression de l\'entreprise a échoué. Veuillez vérifier le jeton CSRF.',
+            'success' => true,
+            'message' => 'L\'entreprise a été supprimée avec succès.',
         ]);
     }
 }

@@ -36,6 +36,7 @@ class Commandes
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'Client_commande')]
+    #[Groups(["commande"])]
     private ?Client $Commande_client = null;
 
     public function getId(): ?int
@@ -127,6 +128,7 @@ class Commandes
         return $this;
     }
 
+    #[Groups(["commande"])]
     public function getCommandeClient(): ?Client
     {
         return $this->Commande_client;

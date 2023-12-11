@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Employes;
+use App\Entity\Entreprise;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,10 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/employes')]
+#[Route('/api')]
 class EmployesController extends AbstractController
 {
-    #[Route('/', name: 'app_employes_index', methods: ['GET'])]
+    #[Route('/all_employes', name: 'app_employes_index', methods: ['GET'])]
     public function index(EmployesRepository $employesRepository): JsonResponse
     {
         return $this->json([
@@ -23,88 +24,64 @@ class EmployesController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_employes_new', methods: ['POST'])]
+    #[Route('/new_employe', name: 'app_employes_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
         $employe = new Employes();
-        $employe->setEmployesEntreprise($decoded->employes_entreprise_id);
+        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+        $employe->setEmployesEntreprise($employe_id);
         $employe->setStatus($decoded->status);
 
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->persist($employe);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Le nouvel employé a été ajouté avec succès.',
-            ]);
-        }
+        $entityManager->persist($employe);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La création de l\'employé a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'Le nouvel employé a été ajouté avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_employes_show', methods: ['GET'])]
+    #[Route('/{id}/show_employe', name: 'app_employes_show', methods: ['GET'])]
     public function show(Employes $employe): JsonResponse
     {
         return $this->json([
             'employe' => [
                 'id' => $employe->getId(),
-                'employes_entreprise_id' => $employe->getEmployesEntreprise(),
-                'status' => $employe->getStatus(),
+                'Status' => $employe->getStatus(),
+                'Employes_entreprise' => $employe->getEmployesEntreprise(),
             ],
-        ]);
+        ], 200, [], ['groups' => 'employe']);
     }
 
-    #[Route('/{id}/edit', name: 'app_employes_edit', methods: ['POST'])]
+
+    #[Route('/{id}/edit_employe', name: 'app_employes_edit', methods: ['POST'])]
     public function edit(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
-        $employe->setEmployesEntreprise($decoded->employes_entreprise_id);
+        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+        $employe->setEmployesEntreprise($employe_id);
         $employe->setStatus($decoded->status);
 
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->submit((array) $decoded);
-
-        if ($form->isValid()) {
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Les informations de l\'employé ont été mises à jour avec succès.',
-            ]);
-        }
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La mise à jour de l\'employé a échoué. Veuillez vérifier les données fournies.',
+            'success' => true,
+            'message' => 'Les informations de l\'employé ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_employes_delete', methods: ['POST'])]
+    #[Route('/{id}/delete_employe', name: 'app_employes_delete', methods: ['POST'])]
     public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$employe->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($employe);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'L\'employé a été supprimé avec succès.',
-            ]);
-        }
+        $entityManager->remove($employe);
+        $entityManager->flush();
 
         return $this->json([
-            'success' => false,
-            'message' => 'La suppression de l\'employé a échoué. Veuillez vérifier le jeton CSRF.',
+            'success' => true,
+            'message' => 'L\'employé a été supprimé avec succès.',
         ]);
     }
 }

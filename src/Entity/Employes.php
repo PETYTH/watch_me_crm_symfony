@@ -17,6 +17,7 @@ class Employes
     private ?string $Status = null;
 
     #[ORM\ManyToOne(inversedBy: 'Employes_entreprise')]
+    #[Groups(["employe"])]
     private ?Entreprise $Employes_entreprise = null;
 
     public function getId(): ?int

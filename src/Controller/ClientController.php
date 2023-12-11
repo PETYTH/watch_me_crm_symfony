@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Commandes;
 use DateTime;
 use App\Entity\Client;
 use App\Enum\UserStatus;
@@ -133,6 +132,7 @@ class ClientController extends AbstractController
         if (!$client) {
             return new JsonResponse(['message' => 'client non trouvé'], Response::HTTP_NOT_FOUND);
         }
+
         $entityManager->remove($commande);
         $entityManager->remove($client);
         $entityManager->flush();;

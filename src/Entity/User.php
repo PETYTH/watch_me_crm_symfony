@@ -45,15 +45,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $modified_at = null;
 
-    #[ORM\OneToMany(mappedBy: 'Users_idUsers', targetEntity: UserHasEntreprise::class)]
-    private Collection $user_id_entreprise;
-
     #[ORM\OneToMany(mappedBy: 'users', targetEntity: UserHasEntreprise::class)]
     private Collection $users;
 
     public function __construct()
     {
-        $this->user_id_entreprise = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
@@ -87,13 +83,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function getRoles(): array
+    /*public function getRoles(): array
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'USER';
 
         return array_unique($roles);
+    }*/
+    public function getRoles(): array
+    {
+        return $this->roles;
     }
 
     public function setRoles(array $roles): static
@@ -183,36 +183,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setModifiedAt(\DateTimeInterface $modified_at): static
     {
         $this->modified_at = $modified_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, userhasentreprise>
-     */
-    public function getUserIdEntreprise(): Collection
-    {
-        return $this->user_id_entreprise;
-    }
-
-    public function addUserIdEntreprise(userhasentreprise $userIdEntreprise): static
-    {
-        if (!$this->user_id_entreprise->contains($userIdEntreprise)) {
-            $this->user_id_entreprise->add($userIdEntreprise);
-            $userIdEntreprise->setUsersIdUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserIdEntreprise(userhasentreprise $userIdEntreprise): static
-    {
-        if ($this->user_id_entreprise->removeElement($userIdEntreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($userIdEntreprise->getUsersIdUsers() === $this) {
-                $userIdEntreprise->setUsersIdUsers(null);
-            }
-        }
 
         return $this;
     }

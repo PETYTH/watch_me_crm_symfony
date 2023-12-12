@@ -6,6 +6,7 @@ use App\Repository\EntrepriseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: EntrepriseRepository::class)]
 class Entreprise
@@ -13,38 +14,44 @@ class Entreprise
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['entreprise_id', 'clients', 'commandes', 'employes'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['entreprise_nom', 'clients', 'commandes', 'employes'])]
     private ?string $nom = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['entreprise_numero_siret', 'clients', 'commandes', 'employes'])]
     private ?int $numero_siret = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['entreprise_adresse', 'clients', 'commandes', 'employes'])]
     private ?string $adresse = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['entreprise_code_postal', 'clients', 'commandes', 'employes'])]
     private ?int $code_postal = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['entreprise_ville', 'clients', 'commandes', 'employes'])]
     private ?string $ville = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['entreprise_chiffre_affaire', 'clients', 'commandes', 'employes'])]
     private ?int $chiffre_affaire = null;
 
     #[ORM\OneToMany(mappedBy: 'Entreprise', targetEntity: UserHasEntreprise::class)]
+    #[Serializer\Groups(['entreprise_users', 'clients', 'commandes', 'employes'])]
     private Collection $Entreprise;
 
     #[ORM\OneToMany(mappedBy: 'Employes_entreprise', targetEntity: Employes::class)]
+    #[Serializer\Groups(['entreprise_employes', 'clients', 'commandes', 'employes'])]
     private Collection $Employes_entreprise;
 
     #[ORM\OneToMany(mappedBy: 'Entreprise_client', targetEntity: ClientHasEntreprise::class)]
+    #[Serializer\Groups(['entreprise_clients', 'clients', 'commandes', 'employes'])]
     private Collection $Entreprise_client;
-
-
-
-
 
     public function __construct()
     {
@@ -53,11 +60,13 @@ class Entreprise
         $this->Entreprise_client = new ArrayCollection();
     }
 
+    #[Serializer\Groups(['entreprise_id', 'clients', 'commandes', 'employes'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Serializer\Groups(['entreprise_nom', 'clients', 'commandes', 'employes'])]
     public function getNom(): ?string
     {
         return $this->nom;
@@ -70,6 +79,7 @@ class Entreprise
         return $this;
     }
 
+    #[Serializer\Groups(['entreprise_numero_siret', 'clients', 'commandes', 'employes'])]
     public function getNumeroSiret(): ?int
     {
         return $this->numero_siret;
@@ -82,6 +92,7 @@ class Entreprise
         return $this;
     }
 
+    #[Serializer\Groups(['entreprise_adresse', 'clients', 'commandes', 'employes'])]
     public function getAdresse(): ?string
     {
         return $this->adresse;
@@ -94,6 +105,7 @@ class Entreprise
         return $this;
     }
 
+    #[Serializer\Groups(['entreprise_code_postal', 'clients', 'commandes', 'employes'])]
     public function getCodePostal(): ?int
     {
         return $this->code_postal;
@@ -106,6 +118,7 @@ class Entreprise
         return $this;
     }
 
+    #[Serializer\Groups(['entreprise_ville', 'clients', 'commandes', 'employes'])]
     public function getVille(): ?string
     {
         return $this->ville;
@@ -118,6 +131,7 @@ class Entreprise
         return $this;
     }
 
+    #[Serializer\Groups(['entreprise_chiffre_affaire', 'clients', 'commandes', 'employes'])]
     public function getChiffreAffaire(): ?int
     {
         return $this->chiffre_affaire;
@@ -133,6 +147,7 @@ class Entreprise
     /**
      * @return Collection<int, UserHasEntreprise>
      */
+    #[Serializer\Groups(['entreprise_users', 'clients', 'commandes', 'employes'])]
     public function getEntreprise(): Collection
     {
         return $this->Entreprise;
@@ -160,11 +175,10 @@ class Entreprise
         return $this;
     }
 
-
-
     /**
      * @return Collection<int, Employes>
      */
+    #[Serializer\Groups(['entreprise_employes', 'clients', 'commandes', 'employes'])]
     public function getEmployesEntreprise(): Collection
     {
         return $this->Employes_entreprise;
@@ -195,6 +209,7 @@ class Entreprise
     /**
      * @return Collection<int, ClientHasEntreprise>
      */
+    #[Serializer\Groups(['entreprise_clients', 'clients', 'commandes', 'employes'])]
     public function getEntrepriseClient(): Collection
     {
         return $this->Entreprise_client;
@@ -221,5 +236,4 @@ class Entreprise
 
         return $this;
     }
-
 }

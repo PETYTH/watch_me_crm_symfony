@@ -6,6 +6,7 @@ use App\Repository\StocksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: StocksRepository::class)]
 class Stocks
@@ -13,15 +14,19 @@ class Stocks
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['stock_id', 'produits'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['stock_numero', 'produits'])]
     private ?string $numero = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['stock_nombre', 'produits'])]
     private ?int $nombre = null;
 
     #[ORM\OneToMany(mappedBy: 'produit_stock', targetEntity: Produits::class)]
+    #[Serializer\Groups(['stock_produit', 'produits'])]
     private Collection $Stock_produit;
 
     public function __construct()
@@ -29,11 +34,13 @@ class Stocks
         $this->Stock_produit = new ArrayCollection();
     }
 
+    #[Serializer\Groups(['stock_id', 'produits'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Serializer\Groups(['stock_numero', 'produits'])]
     public function getNumero(): ?string
     {
         return $this->numero;
@@ -46,6 +53,7 @@ class Stocks
         return $this;
     }
 
+    #[Serializer\Groups(['stock_nombre', 'produits'])]
     public function getNombre(): ?int
     {
         return $this->nombre;
@@ -61,6 +69,7 @@ class Stocks
     /**
      * @return Collection<int, Produits>
      */
+    #[Serializer\Groups(['stock_produit', 'produits'])]
     public function getStockProduit(): Collection
     {
         return $this->Stock_produit;

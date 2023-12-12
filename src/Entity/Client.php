@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -14,39 +15,51 @@ class Client
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['client_id', 'clients', 'commandes'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_nom', 'clients', 'commandes'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_prenom', 'clients', 'commandes'])]
     private ?string $prenom = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Serializer\Groups(['client_date_naissance', 'clients'])]
     private ?\DateTimeInterface $date_naissance = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_email', 'clients'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['client_telephone', 'clients'])]
     private ?int $telephone = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_adresse', 'clients'])]
     private ?string $adresse = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['client_code_postal', 'clients'])]
     private ?int $code_postal = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_ville', 'clients'])]
     private ?string $ville = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_status', 'clients'])]
     private ?string $status = null;
 
     #[ORM\OneToMany(mappedBy: 'Commande_client', targetEntity: Commandes::class)]
+    #[Serializer\Groups(['client_commandes', 'clients', 'commandes'])]
     private Collection $Client_commande;
 
     #[ORM\OneToMany(mappedBy: 'Client', targetEntity: ClientHasEntreprise::class)]
+    #[Serializer\Groups(['client_entreprises', 'clients'])]
     private Collection $Client_entreprise;
 
     public function __construct()
@@ -55,11 +68,13 @@ class Client
         $this->Client_entreprise = new ArrayCollection();
     }
 
+    #[Serializer\Groups(['client_id', 'commandes'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Serializer\Groups(['client_nom', 'commandes'])]
     public function getNom(): ?string
     {
         return $this->nom;
@@ -72,6 +87,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_prenom'])]
     public function getPrenom(): ?string
     {
         return $this->prenom;
@@ -84,6 +100,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_date_naissance'])]
     public function getDateNaissance(): ?\DateTimeInterface
     {
         return $this->date_naissance;
@@ -96,6 +113,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_email'])]
     public function getEmail(): ?string
     {
         return $this->email;
@@ -108,6 +126,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_telephone'])]
     public function getTelephone(): ?int
     {
         return $this->telephone;
@@ -120,6 +139,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_adresse'])]
     public function getAdresse(): ?string
     {
         return $this->adresse;
@@ -132,6 +152,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_code_postal'])]
     public function getCodePostal(): ?int
     {
         return $this->code_postal;
@@ -144,6 +165,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_ville'])]
     public function getVille(): ?string
     {
         return $this->ville;
@@ -156,6 +178,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_status'])]
     public function getStatus(): ?string
     {
         return $this->status;
@@ -168,11 +191,10 @@ class Client
         return $this;
     }
 
-
-
     /**
      * @return Collection<int, Commandes>
      */
+    #[Serializer\Groups(['client_commandes'])]
     public function getClientCommande(): Collection
     {
         return $this->Client_commande;
@@ -203,6 +225,7 @@ class Client
     /**
      * @return Collection<int, ClientHasEntreprise>
      */
+    #[Serializer\Groups(['client_entreprises'])]
     public function getClientEntreprise(): Collection
     {
         return $this->Client_entreprise;
@@ -229,7 +252,4 @@ class Client
 
         return $this;
     }
-
-
-
 }

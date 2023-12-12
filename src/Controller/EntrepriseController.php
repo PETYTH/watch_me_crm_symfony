@@ -7,6 +7,8 @@ use App\Entity\Entreprise;
 use App\Form\EntrepriseType;
 use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,12 +18,35 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api')]
 class EntrepriseController extends AbstractController
 {
-    #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]
-    public function index(EntrepriseRepository $entrepriseRepository): JsonResponse
+    private $serializer;
+
+    public function __construct()
     {
-        return $this->json([
-            'entreprises' => $entrepriseRepository->findAll(),
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]
+    public function index(EntrepriseRepository $entrepriseRepository): Response
+    {
+        $entreprises = $entrepriseRepository->findAll();
+
+        $context = SerializationContext::create()->setGroups([
+            'entreprise_id',
+            'entreprise_nom',
+            'entreprise_numero_siret',
+            'entreprise_adresse',
+            'entreprise_code_postal',
+            'entreprise_ville',
+            'entreprise_chiffre_affaire',
+            'entreprise_entreprise',
+            'entreprise_employes_entreprise',
+            'entreprise_entreprise_client',
+            'default',
         ]);
+
+        $entreprisesJson = $this->serializer->serialize($entreprises, 'json', $context);
+
+        return new Response($entreprisesJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/new_entreprise', name: 'app_entreprise_new', methods: ['POST'])]
@@ -49,17 +74,23 @@ class EntrepriseController extends AbstractController
     #[Route('/{id}/show_entreprise', name: 'app_entreprise_show', methods: ['GET'])]
     public function show(Entreprise $entreprise): JsonResponse
     {
-        return $this->json([
-            'entreprise' => [
-                'id' => $entreprise->getId(),
-                'nom' => $entreprise->getNom(),
-                'numero_siret' => $entreprise->getNumeroSiret(),
-                'adresse' => $entreprise->getAdresse(),
-                'code_postal' => $entreprise->getCodePostal(),
-                'ville' => $entreprise->getVille(),
-                'chiffre_affaire' => $entreprise->getChiffreAffaire(),
-            ],
+        $context = SerializationContext::create()->setGroups([
+            'entreprise_id',
+            'entreprise_nom',
+            'entreprise_numero_siret',
+            'entreprise_adresse',
+            'entreprise_code_postal',
+            'entreprise_ville',
+            'entreprise_chiffre_affaire',
+            'entreprise_entreprise',
+            'entreprise_employes_entreprise',
+            'entreprise_entreprise_client',
+            'default',
         ]);
+
+        $entrepriseJson = $this->serializer->serialize($entreprise, 'json', $context);
+
+        return new JsonResponse(['entreprise' => json_decode($entrepriseJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/{id}/edit_entreprise', name: 'app_entreprise_edit', methods: ['POST'])]

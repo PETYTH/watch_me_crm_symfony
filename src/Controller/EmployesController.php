@@ -8,6 +8,8 @@ use App\Enum\UserStatus;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,12 +19,29 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api')]
 class EmployesController extends AbstractController
 {
-    #[Route('/all_employes', name: 'app_employes_index', methods: ['GET'])]
-    public function index(EmployesRepository $employesRepository): JsonResponse
+    private $serializer;
+
+    public function __construct()
     {
-        return $this->json([
-            'employes' => $employesRepository->findAll(),
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_employes', name: 'app_employes_index', methods: ['GET'])]
+    public function index(EmployesRepository $employesRepository): Response
+    {
+        $employes = $employesRepository->findAll();
+
+        $context = SerializationContext::create()->setGroups([
+            'employes_id',
+            'employes_Status',
+            'employes_employes_entreprise',
+            'employes',
+            'default',
         ]);
+
+        $employesJson = $this->serializer->serialize($employes, 'json', $context);
+
+        return new Response($employesJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/new_employe', name: 'app_employes_new', methods: ['POST'])]
@@ -48,13 +67,17 @@ class EmployesController extends AbstractController
     #[Route('/{id}/show_employe', name: 'app_employes_show', methods: ['GET'])]
     public function show(Employes $employe): JsonResponse
     {
-        return $this->json([
-            'employe' => [
-                'id' => $employe->getId(),
-                'Status' => $employe->getStatus(),
-                'Employes_entreprise' => $employe->getEmployesEntreprise(),
-            ],
-        ], 200, [], ['groups' => 'employe']);
+        $context = SerializationContext::create()->setGroups([
+            'employes_id',
+            'employes_Status',
+            'employes_employes_entreprise',
+            'employes',
+            'default',
+        ]);
+
+        $employeJson = $this->serializer->serialize($employe, 'json', $context);
+
+        return new JsonResponse(['employe' => json_decode($employeJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
 

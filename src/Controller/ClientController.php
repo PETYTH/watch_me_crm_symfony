@@ -10,6 +10,8 @@ use App\Enum\UserStatus;
 use App\Form\ClientType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,12 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api', name:'api_')]
 class ClientController extends AbstractController
 {
-    #[Route('/all_client', name: 'app_client_index', methods: ['GET'])]
-    public function index(ClientRepository $clientRepository): JsonResponse
+    private $serializer;
+
+    public function __construct()
     {
-        return $this->Json([
-            'clients' => $clientRepository->findAll(),
-        ]);
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_client', name: 'app_client_index', methods: ['GET'])]
+    public function index(ClientRepository $clientRepository): Response
+    {
+        $clients = $clientRepository->findAll();
+        $context = SerializationContext::create()->setGroups(['clients', 'default', 'commandes']);
+        $clientsJson = $this->serializer->serialize($clients, 'json', $context);
+
+        return new Response($clientsJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/new_client', name: 'app_client_new', methods: ['GET', 'POST'])]
@@ -75,9 +86,15 @@ class ClientController extends AbstractController
     #[Route('/{id}/show_client', name: 'app_client_show', methods: ['GET'])]
     public function show(Client $client): JsonResponse
     {
-        return $this->Json([
-            'client' => $client,
+        $context = SerializationContext::create()->setGroups([
+            'clients',
+            'default',
+            'commandes',
         ]);
+
+        $clientJson = $this->serializer->serialize($client, 'json', $context);
+
+        return new JsonResponse(['client' => json_decode($clientJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/{id}/edit_client', name: 'app_client_edit', methods: ['GET', 'POST'])]

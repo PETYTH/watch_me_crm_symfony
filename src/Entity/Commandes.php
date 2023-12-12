@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommandesRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: CommandesRepository::class)]
 class Commandes
@@ -12,38 +13,48 @@ class Commandes
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['commandes_id', 'clients'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['commandes_numero', 'commandes', 'clients'])]
     private ?int $numero = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Serializer\Groups(['commandes_date', 'commandes', 'clients'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['commandes_paiement', 'commandes', 'clients'])]
     private ?float $paiement = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['commandes_adresse', 'commandes', 'clients'])]
     private ?string $adresse = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['commandes_code_postal', 'commandes', 'clients'])]
     private ?int $Code_postal = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['commandes_ville', 'commandes', 'clients'])]
     private ?string $ville = null;
 
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['commandes_status', 'commandes', 'clients'])]
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'Client_commande')]
-    #[Groups(["commande"])]
+    #[Serializer\Groups(['commandes_client', 'commandes', 'clients'])]
     private ?Client $Commande_client = null;
 
+    #[Serializer\Groups(['commandes_id', 'clients'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Serializer\Groups(['commandes_numero', 'commandes', 'clients'])]
     public function getNumero(): ?int
     {
         return $this->numero;
@@ -56,6 +67,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_date', 'commandes', 'clients'])]
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
@@ -68,6 +80,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_paiement', 'commandes', 'clients'])]
     public function getPaiement(): ?float
     {
         return $this->paiement;
@@ -80,6 +93,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_adresse', 'commandes', 'clients'])]
     public function getAdresse(): ?string
     {
         return $this->adresse;
@@ -92,6 +106,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_code_postal', 'commandes', 'clients'])]
     public function getCodePostal(): ?int
     {
         return $this->Code_postal;
@@ -104,6 +119,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_ville', 'commandes', 'clients'])]
     public function getVille(): ?string
     {
         return $this->ville;
@@ -116,6 +132,7 @@ class Commandes
         return $this;
     }
 
+    #[Serializer\Groups(['commandes_status', 'commandes', 'clients'])]
     public function getStatus(): ?string
     {
         return $this->status;
@@ -128,12 +145,13 @@ class Commandes
         return $this;
     }
 
-    #[Groups(["commande"])]
+    #[Serializer\Groups(['commandes_client', 'commandes', 'clients'])]
     public function getCommandeClient(): ?Client
     {
         return $this->Commande_client;
     }
 
+    #[Serializer\Groups(['commandes_client', 'commandes', 'clients'])]
     public function setCommandeClient(?Client $Commande_client): static
     {
         $this->Commande_client = $Commande_client;

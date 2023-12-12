@@ -6,21 +6,26 @@
   <component name="ChangeListManager">
     <list default="true" id="dea2d042-b595-4163-b0d9-265947f220a6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/lexik_jwt_authentication.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/lexik_jwt_authentication.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/ClientController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/ClientController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/CommandesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/CommandesController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/EmployesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/EmployesController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/EntrepriseController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/EntrepriseController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/ProduitsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/ProduitsController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/StocksController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/StocksController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Entity/Client.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Client.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Enum/enum.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Enum/enum.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/ClientHasEntreprise.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/ClientHasEntreprise.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Commandes.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Commandes.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Employes.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Employes.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Entreprise.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Entreprise.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Produits.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Produits.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Stocks.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Stocks.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.php" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.php.meta" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.php.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.preload.php" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.preload.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.xml" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.xml.meta" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainer.xml.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainerCompiler.log" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/App_KernelDevDebugContainerCompiler.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/cache/dev/profiler/index.csv" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/profiler/index.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/var/cache/dev/profiler/index.csv.offset" beforeDir="false" afterPath="$PROJECT_DIR$/var/cache/dev/profiler/index.csv.offset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/var/log/dev.log" beforeDir="false" afterPath="$PROJECT_DIR$/var/log/dev.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -279,7 +284,7 @@
       <workItem from="1702325940368" duration="106000" />
       <workItem from="1702369286839" duration="161000" />
       <workItem from="1702369456379" duration="6000" />
-      <workItem from="1702369569804" duration="6537000" />
+      <workItem from="1702369569804" duration="16633000" />
     </task>
     <servers />
   </component>

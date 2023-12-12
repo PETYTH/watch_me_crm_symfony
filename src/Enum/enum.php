@@ -37,6 +37,14 @@ enum UserStatus
     }
 }
 
+enum ClientStatus
+{
+    const SUSPECT = 'SUSPECT';
+    const LEAD = 'LEAD';
+    const PROSPECT = 'PROSPECT';
+    const CLIENT = 'CLIENT';
+}
+
 enum CommandeStatus
 {
     const en_cours = 'en_cours';

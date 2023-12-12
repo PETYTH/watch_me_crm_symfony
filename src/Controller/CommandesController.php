@@ -19,9 +19,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class CommandesController extends AbstractController
 {
     #[Route('/all_commandes', name: 'app_commandes_index', methods: ['GET'])]
-    public function index(CommandesRepository $commandesRepository): JsonResponse
+    public function index(CommandesRepository $commandesRepository): Response
     {
-        return $this->json([
+        return $this->Json([
             'commandes' => $commandesRepository->findAll(),
         ]);
     }
@@ -88,7 +88,8 @@ class CommandesController extends AbstractController
         $commande->setAdresse($decoded->adresse);
         $commande->setCodePostal($decoded->code_postal);
         $commande->setVille($decoded->ville);
-        $commande->setStatus($decoded->status);
+        $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
+        $commande->setStatus($selectedStatus);
 
         $entityManager->flush();
 

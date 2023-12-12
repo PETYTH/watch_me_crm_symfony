@@ -86,7 +86,9 @@ class EntrepriseController extends AbstractController
     public function delete(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): JsonResponse
     {
         $employe = $entityManager->getRepository(Employes::class)->findOneBy(['Employes_entreprise' => $entreprise]);
-        $entityManager->remove($employe);
+        if ($employe) {
+            $entityManager->remove($employe);
+        }
         $entityManager->remove($entreprise);
         $entityManager->flush();
 

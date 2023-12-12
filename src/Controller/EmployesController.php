@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Employes;
 use App\Entity\Entreprise;
+use App\Enum\UserStatus;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +33,8 @@ class EmployesController extends AbstractController
         $employe = new Employes();
         $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
         $employe->setEmployesEntreprise($employe_id);
-        $employe->setStatus($decoded->status);
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $employe->setStatus($selectedStatus);
 
         $entityManager->persist($employe);
         $entityManager->flush();
@@ -63,7 +65,8 @@ class EmployesController extends AbstractController
 
         $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
         $employe->setEmployesEntreprise($employe_id);
-        $employe->setStatus($decoded->status);
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $employe->setStatus($selectedStatus);
 
         $entityManager->flush();
 

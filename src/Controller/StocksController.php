@@ -76,7 +76,9 @@ class StocksController extends AbstractController
     {
         $produit = $entityManager->getRepository(Produits::class)->findOneBy(['produit_stock' => $stock]);
 
-        $entityManager->remove($produit);
+        if ($produit) {
+            $entityManager->remove($produit);
+        }
         $entityManager->remove($stock);
         $entityManager->flush();
 

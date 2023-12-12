@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Commandes;
+use App\Enum\ClientStatus;
 use DateTime;
 use App\Entity\Client;
 use App\Enum\UserStatus;
@@ -48,7 +50,7 @@ class ClientController extends AbstractController
         $codePostal = $decoded->codePostal;
         $ville = $decoded->ville;
 
-        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
 
 
         $client = new Client();
@@ -102,7 +104,7 @@ class ClientController extends AbstractController
         $codePostal = $decoded->codePostal;
         $ville = $decoded->ville;
 
-        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
 
         $client->setNom($nom);
         $client->setPrenom($prenom);
@@ -133,7 +135,9 @@ class ClientController extends AbstractController
             return new JsonResponse(['message' => 'client non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
-        $entityManager->remove($commande);
+        if ($commande) {
+            $entityManager->remove($commande);
+        }
         $entityManager->remove($client);
         $entityManager->flush();;
         return $this->json([

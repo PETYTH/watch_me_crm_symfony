@@ -3,79 +3,90 @@
 namespace App\Controller;
 
 use App\Entity\Employes;
+use App\Entity\Entreprise;
+use App\Enum\UserStatus;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/employes')]
+#[Route('/api', 'api_')]
 class EmployesController extends AbstractController
 {
-    #[Route('/', name: 'app_employes_index', methods: ['GET'])]
-    public function index(EmployesRepository $employesRepository): Response
+    #[Route('/all_employes', name: 'app_employes_index', methods: ['GET'])]
+    public function index(EmployesRepository $employesRepository): JsonResponse
     {
-        return $this->render('employes/index.html.twig', [
+        return $this->Json([
             'employes' => $employesRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_employes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new_employe', name: 'app_employes_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
+        $decoded = json_decode($request->getContent());
+
         $employe = new Employes();
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->handleRequest($request);
+        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+        $employe->setEmployesEntreprise($employe_id);
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $employe->setStatus($selectedStatus);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($employe);
-            $entityManager->flush();
+        $entityManager->persist($employe);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('employes/new.html.twig', [
-            'employe' => $employe,
-            'form' => $form,
+        return $this->json([
+            'message' => 'Le nouvel employé a été ajouté avec succès.',
+            'success' => true,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_employes_show', methods: ['GET'])]
-    public function show(Employes $employe): Response
+
+    #[Route('/{id}/show_employe', name: 'app_employes_show', methods: ['GET'])]
+    public function show(Employes $employe): JsonResponse
     {
-        return $this->render('employes/show.html.twig', [
-            'employe' => $employe,
+        return $this->json([
+            'employe' => [
+                'id' => $employe->getId(),
+                'Status' => $employe->getStatus(),
+                'Employes_entreprise' => $employe->getEmployesEntreprise(),
+            ],
+        ], 200, [], ['groups' => 'employe']);
+    }
+
+    #[Route('/{id}/edit_employe', name: 'app_employes_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+        $employe->setEmployesEntreprise($employe_id);
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+        $employe->setStatus($selectedStatus);
+
+        $entityManager->flush();
+
+        return $this->json([
+            'message' => 'Les informations de l\'employé ont été mises à jour avec succès.',
+            'success' => true,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_employes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Employes $employe, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete_employe', name: 'app_employes_delete', methods: ['POST'])]
+    public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
     {
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->handleRequest($request);
+        $entityManager->remove($employe);
+        $entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('employes/edit.html.twig', [
-            'employe' => $employe,
-            'form' => $form,
+        return $this->json([
+            'message' => 'L\'employé a été supprimé avec succès.',
+            'success' => true,
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_employes_delete', methods: ['POST'])]
-    public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$employe->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($employe);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
     }
 }

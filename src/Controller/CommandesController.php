@@ -2,80 +2,108 @@
 
 namespace App\Controller;
 
+use App\Entity\Client;
 use App\Entity\Commandes;
-use App\Form\CommandesType;
+use App\Enum\CommandeStatus;
 use App\Repository\CommandesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/commandes')]
+#[Route('/api', 'api_')]
 class CommandesController extends AbstractController
 {
-    #[Route('/', name: 'app_commandes_index', methods: ['GET'])]
+    #[Route('/all_commandes', name: 'app_commandes_index', methods: ['GET'])]
     public function index(CommandesRepository $commandesRepository): Response
     {
-        return $this->render('commandes/index.html.twig', [
+        return $this->Json([
             'commandes' => $commandesRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_commandes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new_commande', name: 'app_commandes_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
+        $decoded = json_decode($request->getContent());
+
+        $date = \DateTime::createFromFormat('d-m-Y', $decoded->date)->format('Y-m-d');
+
         $commande = new Commandes();
-        $form = $this->createForm(CommandesType::class, $commande);
-        $form->handleRequest($request);
+        $commandeClientId = $entityManager->getRepository(Client::class)->find($decoded->commande_client_id);
+        $commande->setCommandeClient($commandeClientId);
+        $commande->setNumero($decoded->numero);
+        $commande->setDate(new \DateTime($date));
+        $commande->setPaiement($decoded->paiement);
+        $commande->setAdresse($decoded->adresse);
+        $commande->setCodePostal($decoded->code_postal);
+        $commande->setVille($decoded->ville);
+        $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
+        $commande->setStatus($selectedStatus);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($commande);
-            $entityManager->flush();
+        $entityManager->persist($commande);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('app_commandes_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('commandes/new.html.twig', [
-            'commande' => $commande,
-            'form' => $form,
+        return $this->json([
+            'Message' => 'La nouvelle commande a été ajoutée avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_commandes_show', methods: ['GET'])]
-    public function show(Commandes $commande): Response
+    #[Route('/{id}/show_commande', name: 'app_commandes_show', methods: ['GET'])]
+    public function show(Commandes $commande): JsonResponse
     {
-        return $this->render('commandes/show.html.twig', [
-            'commande' => $commande,
+        return $this->json([
+            'commande' => [
+                'id' => $commande->getId(),
+                'commande_client_id' => $commande->getCommandeClient(),
+                'numero' => $commande->getNumero(),
+                'date' => $commande->getDate()->format('Y-m-d'),
+                'paiement' => $commande->getPaiement(),
+                'adresse' => $commande->getAdresse(),
+                'code_postal' => $commande->getCodePostal(),
+                'ville' => $commande->getVille(),
+                'status' => $commande->getStatus(),
+            ],
+        ], 200, [], ['groups' => 'commande']);
+    }
+
+
+    #[Route('/{id}/edit_commande', name: 'app_commandes_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Commandes $commande, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        $date = \DateTime::createFromFormat('d-m-Y', $decoded->date)->format('Y-m-d');
+
+        $commandeClientId = $entityManager->getRepository(Client::class)->find($decoded->commande_client_id);
+        $commande->setCommandeClient($commandeClientId);
+        $commande->setNumero($decoded->numero);
+        $commande->setDate(new \DateTime($date));
+        $commande->setPaiement($decoded->paiement);
+        $commande->setAdresse($decoded->adresse);
+        $commande->setCodePostal($decoded->code_postal);
+        $commande->setVille($decoded->ville);
+        $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
+        $commande->setStatus($selectedStatus);
+
+        $entityManager->flush();
+
+        return $this->json([
+            'Message' => 'Les informations de la commande ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_commandes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Commandes $commande, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete_commande', name: 'app_commandes_delete', methods: ['POST'])]
+    public function delete(Request $request, Commandes $commande, EntityManagerInterface $entityManager): JsonResponse
     {
-        $form = $this->createForm(CommandesType::class, $commande);
-        $form->handleRequest($request);
+        $entityManager->remove($commande);
+        $entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_commandes_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('commandes/edit.html.twig', [
-            'commande' => $commande,
-            'form' => $form,
+        return $this->json([
+            'message' => 'La commande a été supprimée avec succès.',
+            'success' => true,
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_commandes_delete', methods: ['POST'])]
-    public function delete(Request $request, Commandes $commande, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$commande->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($commande);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_commandes_index', [], Response::HTTP_SEE_OTHER);
     }
 }

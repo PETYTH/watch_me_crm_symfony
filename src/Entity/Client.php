@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -14,32 +15,43 @@ class Client
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['clients'])]
     private ?int $id = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_naissance = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
+
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column]
     private ?int $telephone = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $adresse = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column]
     private ?int $code_postal = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $ville = null;
 
+    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 

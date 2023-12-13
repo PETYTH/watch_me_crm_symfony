@@ -2,80 +2,99 @@
 
 namespace App\Controller;
 
+use App\Entity\Employes;
 use App\Entity\Entreprise;
-use App\Form\EntrepriseType;
 use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/entreprise')]
+#[Route('/api', 'api_')]
 class EntrepriseController extends AbstractController
 {
-    #[Route('/', name: 'app_entreprise_index', methods: ['GET'])]
-    public function index(EntrepriseRepository $entrepriseRepository): Response
+    #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]
+    public function index(EntrepriseRepository $entrepriseRepository): JsonResponse
     {
-        return $this->render('entreprise/index.html.twig', [
+        return $this->Json([
             'entreprises' => $entrepriseRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_entreprise_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new_entreprise', name: 'app_entreprise_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
+        $decoded = json_decode($request->getContent());
+
         $entreprise = new Entreprise();
-        $form = $this->createForm(EntrepriseType::class, $entreprise);
-        $form->handleRequest($request);
+        $entreprise->setNom($decoded->nom);
+        $entreprise->setNumeroSiret($decoded->numero_siret);
+        $entreprise->setAdresse($decoded->adresse);
+        $entreprise->setCodePostal($decoded->code_postal);
+        $entreprise->setVille($decoded->ville);
+        $entreprise->setChiffreAffaire($decoded->chiffre_affaire);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($entreprise);
-            $entityManager->flush();
+        $entityManager->persist($entreprise);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('app_entreprise_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('entreprise/new.html.twig', [
-            'entreprise' => $entreprise,
-            'form' => $form,
+        return $this->json([
+            'success' => true,
+            'message' => 'La nouvelle entreprise a été ajoutée avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_entreprise_show', methods: ['GET'])]
-    public function show(Entreprise $entreprise): Response
+    #[Route('/{id}/show_entreprise', name: 'app_entreprise_show', methods: ['GET'])]
+    public function show(Entreprise $entreprise): JsonResponse
     {
-        return $this->render('entreprise/show.html.twig', [
-            'entreprise' => $entreprise,
+        return $this->json([
+            'entreprise' => [
+                'id' => $entreprise->getId(),
+                'nom' => $entreprise->getNom(),
+                'numero_siret' => $entreprise->getNumeroSiret(),
+                'adresse' => $entreprise->getAdresse(),
+                'code_postal' => $entreprise->getCodePostal(),
+                'ville' => $entreprise->getVille(),
+                'chiffre_affaire' => $entreprise->getChiffreAffaire(),
+            ],
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_entreprise_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): Response
+
+
+    #[Route('/{id}/edit_entreprise', name: 'app_entreprise_edit', methods: ['POST'])]
+    public function edit(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): JsonResponse
     {
-        $form = $this->createForm(EntrepriseType::class, $entreprise);
-        $form->handleRequest($request);
+        $decoded = json_decode($request->getContent());
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+        $entreprise->setNom($decoded->nom);
+        $entreprise->setNumeroSiret($decoded->numero_siret);
+        $entreprise->setAdresse($decoded->adresse);
+        $entreprise->setCodePostal($decoded->code_postal);
+        $entreprise->setVille($decoded->ville);
+        $entreprise->setChiffreAffaire($decoded->chiffre_affaire);
 
-            return $this->redirectToRoute('app_entreprise_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $entityManager->flush();
 
-        return $this->render('entreprise/edit.html.twig', [
-            'entreprise' => $entreprise,
-            'form' => $form,
+        return $this->json([
+            'success' => true,
+            'message' => 'Les informations de l\'entreprise ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_entreprise_delete', methods: ['POST'])]
-    public function delete(Request $request, Entreprise $entreprise, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete_entreprise', name: 'app_entreprise_delete', methods: ['POST'])]
+    public function delete(Entreprise $entreprise, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$entreprise->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($entreprise);
-            $entityManager->flush();
+        $employe = $entityManager->getRepository(Employes::class)->findOneBy(['Employes_entreprise' => $entreprise]);
+        if ($employe) {
+            $entityManager->remove($employe);
         }
+        $entityManager->remove($entreprise);
+        $entityManager->flush();
 
-        return $this->redirectToRoute('app_entreprise_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json([
+            'success' => true,
+            'message' => 'L\'entreprise a été supprimée avec succès.',
+        ]);
     }
 }

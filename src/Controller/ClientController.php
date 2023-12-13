@@ -5,9 +5,10 @@ namespace App\Controller;
 use DateTime;
 use App\Entity\Client;
 use App\Enum\UserStatus;
-use App\Form\ClientType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,12 +18,21 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api', name:'api_')]
 class ClientController extends AbstractController
 {
-    #[Route('/all_client', name: 'app_client_index', methods: ['GET'])]
-    public function index(ClientRepository $clientRepository): JsonResponse
+    private $serializer;
+
+    public function __construct()
     {
-        return $this->Json([
-            'clients' => $clientRepository->findAll(),
-        ]);
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_client', name: 'app_client_index', methods: ['GET'])]
+    public function index(ClientRepository $clientRepository): Response
+    {
+        $clients = $clientRepository->findAll();
+        $context = SerializationContext::create()->setGroups(['clients', 'default']);
+        $clientsJson = $this->serializer->serialize($clients, 'json', $context);
+
+        return new Response($clientsJson, Response::HTTP_OK,['Content-Type' => 'application/json']);
     }
 
     #[Route('/new_client', name: 'app_client_new', methods: ['GET', 'POST'])]
@@ -124,7 +134,7 @@ class ClientController extends AbstractController
 
 
     #[Route('/{id}/delete_client', name: 'app_client_delete', methods: ['POST'])]
-    public function delete(Request $request, int $id, EntityManagerInterface $entityManager): JsonResponse
+    public function delete( int $id, EntityManagerInterface $entityManager): JsonResponse
     {
         $client = $entityManager->getRepository(Client::class)->find($id);
 
@@ -132,7 +142,7 @@ class ClientController extends AbstractController
             return new JsonResponse(['message' => 'client non trouvé'], Response::HTTP_NOT_FOUND);
         }
         $entityManager->remove($client);
-        $entityManager->flush();;
+        $entityManager->flush();
         return $this->json([
             'success' => true,
             'message' => 'Le client a bien été supprimé.',

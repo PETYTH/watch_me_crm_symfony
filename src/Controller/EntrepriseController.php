@@ -49,6 +49,23 @@ class EntrepriseController extends AbstractController
         return new Response($entreprisesJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
+    #[Route('/count_entreprises', name: 'app_entreprises_count', methods: ['GET'])]
+    public function count(EntrepriseRepository $entrepriseRepository): Response
+    {
+        $entreprise = $entrepriseRepository->findAll();
+
+        $nombreTotalEntreprises = count($entreprise);
+
+        $responseData = [
+            'nombreTotalEntreprises' => $nombreTotalEntreprises,
+        ];
+
+        $responseJson = json_encode($responseData);
+
+        return new Response($responseJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+
+    }
+
     #[Route('/new_entreprise', name: 'app_entreprise_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {

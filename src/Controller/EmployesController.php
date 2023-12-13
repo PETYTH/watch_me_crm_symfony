@@ -44,6 +44,23 @@ class EmployesController extends AbstractController
         return new Response($employesJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
+    #[Route('/count_employes', name: 'app_employes_count', methods: ['GET'])]
+    public function count(EmployesRepository $employesRepository): Response
+    {
+        $employes = $employesRepository->findAll();
+
+        $nombreTotalEmployes = count($employes);
+
+        $responseData = [
+            'nombreTotalEmployes' => $nombreTotalEmployes,
+        ];
+
+        $responseJson = json_encode($responseData);
+
+        return new Response($responseJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+
+    }
+
     #[Route('/new_employe', name: 'app_employes_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {

@@ -12,24 +12,24 @@ class Employes
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Serializer\Groups(['employe_id', 'entreprises'])]
+    #[Serializer\Groups(['employes_id', 'entreprises'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Serializer\Groups(['employe_status', 'employes'])]
+    #[Serializer\Groups(['employes_status', 'employes'])]
     private ?string $Status = null;
 
     #[ORM\ManyToOne(inversedBy: 'Employes_entreprise')]
-    #[Serializer\Groups(['employe_entreprise', 'entreprises'])]
+    #[Serializer\Groups(['employes_entreprise', 'entreprises'])]
     private ?Entreprise $Employes_entreprise = null;
 
-    #[Serializer\Groups(['employe_id', 'entreprises'])]
+    #[Serializer\Groups(['employes_id', 'entreprises'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    #[Serializer\Groups(['employe_status', 'employes'])]
+    #[Serializer\Groups(['employes_status', 'employes'])]
     public function getStatus(): ?string
     {
         return $this->Status;
@@ -42,7 +42,7 @@ class Employes
         return $this;
     }
 
-    #[Serializer\Groups(['employe_entreprise', 'entreprises'])]
+    #[Serializer\Groups(['employes_entreprise', 'entreprises'])]
     public function getEmployesEntreprise(): ?Entreprise
     {
         return $this->Employes_entreprise;

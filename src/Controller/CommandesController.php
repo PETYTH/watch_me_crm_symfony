@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Client;
 use App\Entity\Commandes;
+use App\Entity\Produits;
 use App\Enum\CommandeStatus;
 use App\Form\CommandesType;
 use App\Repository\CommandesRepository;
@@ -68,9 +69,8 @@ class CommandesController extends AbstractController
         $commande->setVille($decoded->ville);
         $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
         $commande->setStatus($selectedStatus);
-
-        $entityManager->persist($commande);
-        $entityManager->flush();
+        $commandeProduitId = $entityManager->getRepository(Produits::class)->find($decoded->produit_id);
+        $commande->setProduit($commandeProduitId);
 
         // Décrémenter la quantité de produit dans le stock si le statut est "payé"
         if ($selectedStatus === CommandeStatus::effectue) {
@@ -96,6 +96,8 @@ class CommandesController extends AbstractController
             }
         }
 
+        $entityManager->persist($commande);
+        $entityManager->flush();
         return $this->json([
             'Message' => 'La nouvelle commande a été ajoutée avec succès.',
         ]);

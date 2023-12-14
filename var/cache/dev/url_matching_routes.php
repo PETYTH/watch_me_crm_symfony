@@ -74,13 +74,11 @@ return [
                         .')'
                         .'|all_clients_entreprise/([^/]++)(*:437)'
                         .'|([^/]++)/(?'
-                            .'|show(?'
-                                .'|_(?'
-                                    .'|entreprise(*:478)'
-                                    .'|produit(*:493)'
-                                    .'|stock(*:506)'
-                                .')'
-                                .'|(*:515)'
+                            .'|show_(?'
+                                .'|entreprise(*:475)'
+                                .'|produit(*:490)'
+                                .'|stock(*:503)'
+                                .'|user(*:515)'
                             .')'
                             .'|edit_(?'
                                 .'|entreprise(*:542)'
@@ -141,9 +139,9 @@ return [
         380 => [[['_route' => 'api_app_commandes_delete', '_controller' => 'App\\Controller\\CommandesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
         396 => [[['_route' => 'api_app_employes_delete', '_controller' => 'App\\Controller\\EmployesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
         437 => [[['_route' => 'api_app_all_clients', '_controller' => 'App\\Controller\\EntrepriseController::getAllClientsByEntreprise'], ['entrepriseId'], ['GET' => 0], null, false, true, null]],
-        478 => [[['_route' => 'api_app_entreprise_show', '_controller' => 'App\\Controller\\EntrepriseController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        493 => [[['_route' => 'api_app_produits_show', '_controller' => 'App\\Controller\\ProduitsController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        506 => [[['_route' => 'api_app_stocks_show', '_controller' => 'App\\Controller\\StocksController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        475 => [[['_route' => 'api_app_entreprise_show', '_controller' => 'App\\Controller\\EntrepriseController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        490 => [[['_route' => 'api_app_produits_show', '_controller' => 'App\\Controller\\ProduitsController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        503 => [[['_route' => 'api_app_stocks_show', '_controller' => 'App\\Controller\\StocksController::show'], ['id'], ['GET' => 0], null, false, false, null]],
         515 => [[['_route' => 'api_app_user_show', '_controller' => 'App\\Controller\\UserController::show'], ['id'], ['GET' => 0], null, false, false, null]],
         542 => [[['_route' => 'api_app_entreprise_edit', '_controller' => 'App\\Controller\\EntrepriseController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
         557 => [[['_route' => 'api_app_produits_edit', '_controller' => 'App\\Controller\\ProduitsController::edit'], ['id'], ['POST' => 0], null, false, false, null]],

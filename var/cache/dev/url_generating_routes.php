@@ -64,7 +64,7 @@ return [
     'api_app_stocks_delete' => [['id'], ['_controller' => 'App\\Controller\\StocksController::delete'], [], [['text', '/delete_stock'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'api_app_user_index' => [[], ['_controller' => 'App\\Controller\\UserController::index'], [], [['text', '/api/all_user']], [], [], []],
     'api_app_register' => [[], ['_controller' => 'App\\Controller\\UserController::register'], [], [['text', '/api/register']], [], [], []],
-    'api_app_user_show' => [['id'], ['_controller' => 'App\\Controller\\UserController::show'], [], [['text', '/show'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
+    'api_app_user_show' => [['id'], ['_controller' => 'App\\Controller\\UserController::show'], [], [['text', '/show_user'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'api_app_user_edit' => [['id'], ['_controller' => 'App\\Controller\\UserController::edit'], [], [['text', '/user_edit'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'api_app_user_delete' => [['id'], ['_controller' => 'App\\Controller\\UserController::delete'], [], [['text', '/user_delete'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'api_login_check' => [[], [], [], [['text', '/api/login_check']], [], [], []],

@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -39,23 +37,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthday = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $resetToken = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $modified_at = null;
-
-    #[ORM\OneToMany(mappedBy: 'Users_idUsers', targetEntity: UserHasEntreprise::class)]
-    private Collection $user_id_entreprise;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: UserHasEntreprise::class)]
-    private Collection $users;
-
-    public function __construct()
-    {
-        $this->user_id_entreprise = new ArrayCollection();
-        $this->users = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -87,13 +76,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function getRoles(): array
+    /*public function getRoles(): array
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'USER';
 
         return array_unique($roles);
+    }*/
+    public function getRoles(): array
+    {
+        return $this->roles;
     }
 
     public function setRoles(array $roles): static
@@ -150,6 +143,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    public function setResetToken(?string $resetToken): static
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
 
     public function getBirthday(): ?\DateTimeInterface
     {
@@ -183,66 +188,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setModifiedAt(\DateTimeInterface $modified_at): static
     {
         $this->modified_at = $modified_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, userhasentreprise>
-     */
-    public function getUserIdEntreprise(): Collection
-    {
-        return $this->user_id_entreprise;
-    }
-
-    public function addUserIdEntreprise(userhasentreprise $userIdEntreprise): static
-    {
-        if (!$this->user_id_entreprise->contains($userIdEntreprise)) {
-            $this->user_id_entreprise->add($userIdEntreprise);
-            $userIdEntreprise->setUsersIdUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserIdEntreprise(userhasentreprise $userIdEntreprise): static
-    {
-        if ($this->user_id_entreprise->removeElement($userIdEntreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($userIdEntreprise->getUsersIdUsers() === $this) {
-                $userIdEntreprise->setUsersIdUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, UserHasEntreprise>
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(UserHasEntreprise $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(UserHasEntreprise $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getUsers() === $this) {
-                $user->setUsers(null);
-            }
-        }
 
         return $this;
     }

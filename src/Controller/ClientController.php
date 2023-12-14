@@ -2,80 +2,220 @@
 
 namespace App\Controller;
 
+use App\Entity\Commandes;
+use App\Enum\ClientStatus;
+use App\Repository\EmployesRepository;
+use App\Repository\EntrepriseRepository;
+use DateTime;
 use App\Entity\Client;
-use App\Form\ClientType;
+use App\Entity\Employes;
+use App\Entity\Entreprise;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/client')]
+#[Route('/api', name:'api_')]
 class ClientController extends AbstractController
 {
-    #[Route('/', name: 'app_client_index', methods: ['GET'])]
+    private $serializer;
+
+    public function __construct()
+    {
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_client', name: 'app_client_index', methods: ['GET'])]
     public function index(ClientRepository $clientRepository): Response
     {
-        return $this->render('client/index.html.twig', [
-            'clients' => $clientRepository->findAll(),
-        ]);
+        $clients = $clientRepository->findAll();
+        $context = SerializationContext::create()->setGroups(['clients', 'default', 'commandes']);
+        $clientsJson = $this->serializer->serialize($clients, 'json', $context);
+
+        return new Response($clientsJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    #[Route('/new', name: 'app_client_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new_client', name: 'app_client_new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $em, EntrepriseRepository $entrepriseRepository, EmployesRepository $employesRepository): JsonResponse
     {
+        $decoded = json_decode($request->getContent());
+
+        $nom = $decoded->nom;
+        $prenom = $decoded->prenom;
+        $dateNaissance = DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance);
+
+        if (!$dateNaissance instanceof \DateTime) {
+            return $this->json([
+                'message' => 'Format de date d\'anniversaire invalide. Utilisez le format jour-mois-année.',
+                'success' => false,
+            ]);
+        }
+
+        $dateNaissanceFormatted = \DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance)->format('Y-m-d');
+
+        $email = $decoded->email;
+        $telephone = $decoded->telephone;
+        $adresse = $decoded->adresse;
+        $codePostal = $decoded->codePostal;
+        $ville = $decoded->ville;
+
+        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
+
+        $entrepriseId = $decoded->entrepriseId;
+        $entreprise = $entrepriseRepository->find($entrepriseId);
+
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Récupérez l'ID de l'employé existant que vous souhaitez lier au client
+        $employeId = $decoded->employeId;
+        $employe = $employesRepository->find($employeId);
+
+        if (!$employe) {
+            return $this->json([
+                'message' => 'L\'employé spécifié n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Création du client
         $client = new Client();
-        $form = $this->createForm(ClientType::class, $client);
-        $form->handleRequest($request);
+        $client->setNom($nom);
+        $client->setPrenom($prenom);
+        $client->setDateNaissance(new \DateTime($dateNaissanceFormatted));
+        $client->setEmail($email);
+        $client->setTelephone($telephone);
+        $client->setAdresse($adresse);
+        $client->setCodePostal($codePostal);
+        $client->setVille($ville);
+        $client->setStatus($selectedStatus);
+        $client->setEntreprise($entreprise);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($client);
-            $entityManager->flush();
+        // Lier le client à l'employé existant
+        $client->setEmploye($employe);
 
-            return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $em->persist($client);
+        $em->flush();
 
-        return $this->render('client/new.html.twig', [
-            'client' => $client,
-            'form' => $form,
+        return $this->json([
+            'Message' => "Le client a été créé et lié à l'employé spécifié.",
         ]);
     }
 
-    #[Route('/{id}', name: 'app_client_show', methods: ['GET'])]
-    public function show(Client $client): Response
+
+
+    #[Route('/{id}/show_client', name: 'app_client_show', methods: ['GET'])]
+    public function show(Client $client): JsonResponse
     {
-        return $this->render('client/show.html.twig', [
-            'client' => $client,
+        $context = SerializationContext::create()->setGroups([
+            'clients',
+            'default',
+            'commandes',
+        ]);
+
+        $clientJson = $this->serializer->serialize($client, 'json', $context);
+
+        return new JsonResponse(['client' => json_decode($clientJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+    #[Route('/{id}/edit_client', name: 'app_client_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager, EntrepriseRepository $entrepriseRepository, EmployesRepository $employesRepository): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        $nom = $decoded->nom;
+        $prenom = $decoded->prenom;
+        $dateNaissance = DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance);
+
+        if (!$dateNaissance instanceof \DateTime) {
+            return $this->json([
+                'message' => 'Format de date d\'anniversaire invalide. Utilisez le format jour-mois-année.',
+                'success' => false,
+            ]);
+        }
+
+        $dateNaissanceFormatted = \DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance)->format('Y-m-d');
+
+        $email = $decoded->email;
+        $telephone = $decoded->telephone;
+        $adresse = $decoded->adresse;
+        $codePostal = $decoded->codePostal;
+        $ville = $decoded->ville;
+
+        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
+
+        $entrepriseId = $decoded->entrepriseId;
+        $entreprise = $entrepriseRepository->find($entrepriseId);
+
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Récupérez l'ID de l'employé existant que vous souhaitez lier au client
+        $employeId = $decoded->employeId;
+        $employe = $employesRepository->find($employeId);
+
+        if (!$employe) {
+            return $this->json([
+                'message' => 'L\'employé spécifié n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        $client->setNom($nom);
+        $client->setPrenom($prenom);
+        $client->setDateNaissance(new \DateTime($dateNaissanceFormatted));
+        $client->setEmail($email);
+        $client->setTelephone($telephone);
+        $client->setAdresse($adresse);
+        $client->setCodePostal($codePostal);
+        $client->setVille($ville);
+        $client->setStatus($selectedStatus);
+        $client->setEntreprise($entreprise);
+        $client->setEmploye($employe);
+
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Les informations du client ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_client_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager): Response
+
+
+    #[Route('/{id}/delete_client', name: 'app_client_delete', methods: ['POST'])]
+    public function delete(Request $request, int $id, EntityManagerInterface $entityManager): JsonResponse
     {
-        $form = $this->createForm(ClientType::class, $client);
-        $form->handleRequest($request);
+        $client = $entityManager->getRepository(Client::class)->find($id);
+        $commande = $entityManager->getRepository(Commandes::class)->findOneBy(['Commande_client' => $id]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
+        if (!$client) {
+            return new JsonResponse(['message' => 'client non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->render('client/edit.html.twig', [
-            'client' => $client,
-            'form' => $form,
+        if ($commande) {
+            $entityManager->remove($commande);
+        }
+        $entityManager->remove($client);
+        $entityManager->flush();;
+        return $this->json([
+            'success' => true,
+            'message' => 'Le client a bien été supprimé.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_client_delete', methods: ['POST'])]
-    public function delete(Request $request, Client $client, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($client);
-            $entityManager->flush();
-        }
 
-        return $this->redirectToRoute('app_client_index', [], Response::HTTP_SEE_OTHER);
-    }
 }

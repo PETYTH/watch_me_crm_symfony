@@ -1,3 +1,11 @@
 <?php //%5BC%5DSymfony%255CComponent%255CForm%255CFormInterface%2523has
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 return [PHP_INT_MAX, 1700836668];
+=======
+return [PHP_INT_MAX, 1702284454];
+>>>>>>> 43c9375b7b5dfd9f91e2f672fad14684c19e682f
+=======
+return [PHP_INT_MAX, 1702398917];
+>>>>>>> 6123ab36d68ea3b9a356ac9e5b016f1d89e46f8b

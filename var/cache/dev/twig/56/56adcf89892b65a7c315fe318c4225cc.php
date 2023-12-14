@@ -95,6 +95,6 @@ class __TwigTemplate_a655ac7ecd518a139005a13970b9914e extends Template
      stroke=\"none\"
      fill=\"#aaaaaa\"/>
 </svg>
-", "@JMSSerializer/icon.svg", "C:\\synfony\\CRM_projet_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\icon.svg");
+", "@JMSSerializer/icon.svg", "C:\\Users\\Etudiant\\Documents\\Code\\projets\\projet_crm\\watch_me_crm_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\icon.svg");
     }
 }

@@ -348,6 +348,6 @@ class __TwigTemplate_ed48633670e6412e446503125f8feba5 extends Template
         </table>
     {%- endfor -%}
 {%- endmacro -%}
-", "@JMSSerializer/Collector/events.html.twig", "C:\\synfony\\CRM_projet_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\events.html.twig");
+", "@JMSSerializer/Collector/events.html.twig", "C:\\Users\\Etudiant\\Documents\\Code\\projets\\projet_crm\\watch_me_crm_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\events.html.twig");
     }
 }

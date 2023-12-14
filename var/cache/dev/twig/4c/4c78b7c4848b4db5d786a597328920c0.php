@@ -163,6 +163,6 @@ class __TwigTemplate_0ef146f7cc1bd64585e8c5d4a96c4041 extends Template
     </ul>
 </div>
 {% endblock %}
-", "register/index.html.twig", "C:\\synfony\\CRM_projet_symfony\\templates\\register\\index.html.twig");
+", "register/index.html.twig", "C:\\Users\\Etudiant\\Documents\\Code\\projets\\projet_crm\\watch_me_crm_symfony\\templates\\register\\index.html.twig");
     }
 }

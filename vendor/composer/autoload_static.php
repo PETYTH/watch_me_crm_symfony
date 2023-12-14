@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
+class ComposerStaticInit6b832157f1650a4dfc8bc6301deefa01
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -107,6 +107,7 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
             'Symfony\\Bridge\\PhpUnit\\' => 23,
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
+            'Sensio\\Bundle\\FrameworkExtraBundle\\' => 35,
         ),
         'P' => 
         array (
@@ -118,6 +119,7 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
             'Psr\\Cache\\' => 10,
             'PhpParser\\' => 10,
             'PHPStan\\PhpDocParser\\' => 21,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'N' => 
         array (
@@ -181,8 +183,8 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         'phpDocumentor\\Reflection\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
-            1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
+            1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
         ),
         'Webmozart\\Assert\\' => 
         array (
@@ -468,6 +470,10 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         array (
             0 => __DIR__ . '/..' . '/symfony/doctrine-bridge',
         ),
+        'Sensio\\Bundle\\FrameworkExtraBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sensio/framework-extra-bundle/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -499,6 +505,10 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         'PHPStan\\PhpDocParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpstan/phpdoc-parser/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Nelmio\\CorsBundle\\' => 
         array (
@@ -602,8 +612,8 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         ),
         'Doctrine\\Common\\' => 
         array (
-            0 => __DIR__ . '/..' . '/doctrine/common/src',
-            1 => __DIR__ . '/..' . '/doctrine/event-manager/src',
+            0 => __DIR__ . '/..' . '/doctrine/event-manager/src',
+            1 => __DIR__ . '/..' . '/doctrine/common/src',
         ),
         'Doctrine\\Bundle\\MigrationsBundle\\' => 
         array (
@@ -1292,10 +1302,10 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite1265916685a73d2a4f1c37692aeed30::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite1265916685a73d2a4f1c37692aeed30::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInite1265916685a73d2a4f1c37692aeed30::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInite1265916685a73d2a4f1c37692aeed30::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6b832157f1650a4dfc8bc6301deefa01::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6b832157f1650a4dfc8bc6301deefa01::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit6b832157f1650a4dfc8bc6301deefa01::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit6b832157f1650a4dfc8bc6301deefa01::$classMap;
 
         }, null, ClassLoader::class);
     }

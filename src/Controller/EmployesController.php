@@ -3,79 +3,170 @@
 namespace App\Controller;
 
 use App\Entity\Employes;
+use App\Entity\Entreprise;
+use App\Entity\User;
+use App\Enum\UserStatus;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/employes')]
+#[Route('/api', name: 'api_')]
 class EmployesController extends AbstractController
 {
-    #[Route('/', name: 'app_employes_index', methods: ['GET'])]
+    private $serializer;
+
+    public function __construct()
+    {
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_employes', name: 'app_employes_index', methods: ['GET'])]
     public function index(EmployesRepository $employesRepository): Response
     {
-        return $this->render('employes/index.html.twig', [
-            'employes' => $employesRepository->findAll(),
+        $employes = $employesRepository->findAll();
+
+        $context = SerializationContext::create()->setGroups([
+            'employes_id',
+            'employes_Status',
+            'employes_employes_entreprise',
+            'employes',
+            'default',
         ]);
+
+        $employesJson = $this->serializer->serialize($employes, 'json', $context);
+
+        return new Response($employesJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    #[Route('/new', name: 'app_employes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/count_employes', name: 'app_employes_count', methods: ['GET'])]
+    public function count(EmployesRepository $employesRepository): Response
     {
-        $employe = new Employes();
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->handleRequest($request);
+        $employes = $employesRepository->findAll();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($employe);
-            $entityManager->flush();
+        $nombreTotalEmployes = count($employes);
 
-            return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
+        $responseData = [
+            'nombreTotalEmployes' => $nombreTotalEmployes,
+        ];
+
+        $responseJson = json_encode($responseData);
+
+        return new Response($responseJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+
+    }
+
+    #[Route('/new_employe', name: 'app_employes_new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        // Recherche de l'entreprise associée à l'employé
+        $employeEntreprise = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+
+        if (!$employeEntreprise) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+            ]);
         }
 
-        return $this->render('employes/new.html.twig', [
-            'employe' => $employe,
-            'form' => $form,
-        ]);
-    }
+        // Recherche de l'utilisateur ayant le rôle employé
+        $userRepository = $entityManager->getRepository(User::class);
+        $employeUser = $userRepository->findOneBy(['id' => $decoded->user_id, 'roles' => 'EMPLOYE']);
 
-    #[Route('/{id}', name: 'app_employes_show', methods: ['GET'])]
-    public function show(Employes $employe): Response
-    {
-        return $this->render('employes/show.html.twig', [
-            'employe' => $employe,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_employes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Employes $employe, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(EmployesType::class, $employe);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
+        if (!$employeUser) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'utilisateur employé spécifié n\'existe pas.',
+            ]);
         }
 
-        return $this->render('employes/edit.html.twig', [
-            'employe' => $employe,
-            'form' => $form,
+        // Création d'un nouvel employé et association à l'entreprise et à l'utilisateur
+        $newEmploye = new Employes();
+        $newEmploye->setEmployesEntreprise($employeEntreprise);
+        $newEmploye->setUser($employeUser);
+
+        $entityManager->persist($newEmploye);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Le nouvel employé a été ajouté avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_employes_delete', methods: ['POST'])]
-    public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/show_employe', name: 'app_employes_show', methods: ['GET'])]
+    public function show(Employes $employe): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$employe->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($employe);
-            $entityManager->flush();
+        $context = SerializationContext::create()->setGroups([
+            'employes_id',
+            'employes_Status',
+            'employes_employes_entreprise',
+            'employes',
+            'default',
+        ]);
+
+        $employeJson = $this->serializer->serialize($employe, 'json', $context);
+
+        return new JsonResponse(['employe' => json_decode($employeJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+
+    #[Route('/{id}/edit_employe', name: 'app_employes_edit', methods: ['POST'])]
+    public function edit(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        // Recherche de l'entreprise associée à l'employé
+        $employeEntreprise = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+
+        if (!$employeEntreprise) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+            ]);
         }
 
-        return $this->redirectToRoute('app_employes_index', [], Response::HTTP_SEE_OTHER);
+        // Recherche de l'utilisateur ayant le rôle employé
+        $userRepository = $entityManager->getRepository(User::class);
+        $employeUser = $userRepository->findOneBy(['id' => $decoded->user_id, 'roles' => 'EMPLOYE']);
+
+        if (!$employeUser) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'utilisateur employé spécifié n\'existe pas.',
+            ]);
+        }
+
+        // Mise à jour des informations de l'employé avec l'utilisateur associé
+        $employe->setEmployesEntreprise($employeEntreprise);
+        $employe->setUser($employeUser);
+
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Les informations de l\'employé ont été mises à jour avec succès.',
+        ]);
+    }
+
+
+    #[Route('/{id}/delete_employe', name: 'app_employes_delete', methods: ['POST'])]
+    public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $entityManager->remove($employe);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'L\'employé a été supprimé avec succès.',
+        ]);
     }
 }

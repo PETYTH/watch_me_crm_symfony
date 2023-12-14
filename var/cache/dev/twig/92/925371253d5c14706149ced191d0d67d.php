@@ -121,6 +121,6 @@ document.addEventListener(\"DOMContentLoaded\", function () {
        });
     });
 })
-", "@JMSSerializer/Collector/script/jms.js.twig", "C:\\synfony\\CRM_projet_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\script\\jms.js.twig");
+", "@JMSSerializer/Collector/script/jms.js.twig", "C:\\Users\\Etudiant\\Documents\\Code\\projets\\projet_crm\\watch_me_crm_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\script\\jms.js.twig");
     }
 }

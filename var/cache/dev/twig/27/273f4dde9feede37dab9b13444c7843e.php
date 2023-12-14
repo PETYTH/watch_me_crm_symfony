@@ -431,6 +431,6 @@ class __TwigTemplate_8238c7bb61484eacd7b38f931c70b7b1 extends Template
 .jms-method-trace.label {
     background: #ebebeb;
 }
-", "@JMSSerializer/Collector/style/jms.css.twig", "C:\\synfony\\CRM_projet_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\style\\jms.css.twig");
+", "@JMSSerializer/Collector/style/jms.css.twig", "C:\\Users\\Etudiant\\Documents\\Code\\projets\\projet_crm\\watch_me_crm_symfony\\vendor\\jms\\serializer-bundle\\Resources\\views\\Collector\\style\\jms.css.twig");
     }
 }

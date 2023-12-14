@@ -2,80 +2,112 @@
 
 namespace App\Controller;
 
+use App\Entity\Produits;
 use App\Entity\Stocks;
 use App\Form\StocksType;
 use App\Repository\StocksRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/stocks')]
+#[Route('/api', name: 'api_')]
 class StocksController extends AbstractController
 {
-    #[Route('/', name: 'app_stocks_index', methods: ['GET'])]
+    private $serializer;
+
+    public function __construct()
+    {
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_stocks', name: 'app_stocks_index', methods: ['GET'])]
     public function index(StocksRepository $stocksRepository): Response
     {
-        return $this->render('stocks/index.html.twig', [
-            'stocks' => $stocksRepository->findAll(),
+        $stocks = $stocksRepository->findAll();
+
+        $context = SerializationContext::create()->setGroups([
+            'stock_id',
+            'stock_identifiant',
+            'stock_nombre',
+            'stock_produit',
+            'default',
         ]);
+
+        $stocksJson = $this->serializer->serialize($stocks, 'json', $context);
+
+        return new Response($stocksJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    #[Route('/new', name: 'app_stocks_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new_stock', name: 'app_stocks_new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
+        $decoded = json_decode($request->getContent());
+
         $stock = new Stocks();
-        $form = $this->createForm(StocksType::class, $stock);
-        $form->handleRequest($request);
+        $stock->setIdentifiantStock($decoded->stock_identifiant);
+        $stock->setNombre($decoded->nombre);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($stock);
-            $entityManager->flush();
+        $entityManager->persist($stock);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('app_stocks_index', [], Response::HTTP_SEE_OTHER);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => 'Le nouveau stock a été ajouté avec succès.',
+        ]);
 
-        return $this->render('stocks/new.html.twig', [
-            'stock' => $stock,
-            'form' => $form,
+    }
+
+    #[Route('/{id}/show_stock', name: 'app_stocks_show', methods: ['GET'])]
+    public function show(Stocks $stock): JsonResponse
+    {
+        $context = SerializationContext::create()->setGroups([
+            'stock_id',
+            'stock_identifiant',
+            'stock_nombre',
+            'stock_produit',
+            'default',
+        ]);
+
+        $stockJson = $this->serializer->serialize($stock, 'json', $context);
+
+        return new JsonResponse(['stock' => json_decode($stockJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+    #[Route('/{id}/edit_stock', name: 'app_stocks_edit', methods: ['POST'])]
+    public function edit(Request $request, Stocks $stock, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        $stock->setIdentifiantStock($decoded->numero);
+        $stock->setNombre($decoded->nombre);
+
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Les informations du stock ont été mises à jour avec succès.',
         ]);
     }
 
-    #[Route('/{id}', name: 'app_stocks_show', methods: ['GET'])]
-    public function show(Stocks $stock): Response
+    #[Route('/{id}/delete_stock', name: 'app_stocks_delete', methods: ['POST'])]
+    public function delete(Request $request, Stocks $stock, EntityManagerInterface $entityManager): JsonResponse
     {
-        return $this->render('stocks/show.html.twig', [
-            'stock' => $stock,
-        ]);
-    }
+        $produit = $entityManager->getRepository(Produits::class)->findOneBy(['produit_stock' => $stock]);
 
-    #[Route('/{id}/edit', name: 'app_stocks_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Stocks $stock, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(StocksType::class, $stock);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_stocks_index', [], Response::HTTP_SEE_OTHER);
+        if ($produit) {
+            $entityManager->remove($produit);
         }
+        $entityManager->remove($stock);
+        $entityManager->flush();
 
-        return $this->render('stocks/edit.html.twig', [
-            'stock' => $stock,
-            'form' => $form,
+        return $this->json([
+            'success' => true,
+            'message' => 'Le stock a été supprimé avec succès.',
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_stocks_delete', methods: ['POST'])]
-    public function delete(Request $request, Stocks $stock, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$stock->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($stock);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_stocks_index', [], Response::HTTP_SEE_OTHER);
     }
 }

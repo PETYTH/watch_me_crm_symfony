@@ -21,9 +21,22 @@ class EntrepriseRepository extends ServiceEntityRepository
         parent::__construct($registry, Entreprise::class);
     }
 
-//    /**
-//     * @return Entreprise[] Returns an array of Entreprise objects
-//     */
+    /**
+     * Retourne les clients associés à une entreprise spécifique.
+     *
+     * @param int $entrepriseId L'ID de l'entreprise pour laquelle rechercher les clients
+     * @return Entreprise|null L'entité Entreprise correspondante
+     */
+    public function findClientsByEntreprise(int $entrepriseId): ?Entreprise
+    {
+        return $this->createQueryBuilder('e')
+            ->leftJoin('e.clients', 'c')
+            ->addSelect('c')
+            ->where('e.id = :id')
+            ->setParameter('id', $entrepriseId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 //    public function findByExampleField($value): array
 //    {
 //        return $this->createQueryBuilder('e')

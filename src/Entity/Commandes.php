@@ -48,6 +48,13 @@ class Commandes
     #[Serializer\Groups(['commandes_client', 'commandes', 'clients'])]
     private ?Client $Commande_client = null;
 
+    #[ORM\ManyToOne(targetEntity: Produits::class)]
+    #[ORM\JoinColumn(name: 'produit_id', referencedColumnName: 'id')]
+    #[Serializer\Groups(['commandes_produit', 'commandes', 'produits'])]
+    private ?Produits $produit;
+
+
+
     #[Serializer\Groups(['commandes_id', 'clients'])]
     public function getId(): ?int
     {
@@ -66,7 +73,6 @@ class Commandes
 
         return $this;
     }
-
     #[Serializer\Groups(['commandes_date', 'commandes', 'clients'])]
     public function getDate(): ?\DateTimeInterface
     {
@@ -155,6 +161,20 @@ class Commandes
     public function setCommandeClient(?Client $Commande_client): static
     {
         $this->Commande_client = $Commande_client;
+
+        return $this;
+    }
+
+    #[Serializer\Groups(['commandes_produit', 'commandes', 'produits'])]
+    public function getProduit(): ?Produits
+    {
+        return $this->produit;
+    }
+
+    #[Serializer\Groups(['commandes_produit', 'commandes', 'produits'])]
+    public function setProduit(?Produits $produit): static
+    {
+        $this->produit = $produit;
 
         return $this;
     }

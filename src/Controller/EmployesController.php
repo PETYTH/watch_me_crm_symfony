@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Employes;
 use App\Entity\Entreprise;
+use App\Entity\User;
 use App\Enum\UserStatus;
 use App\Form\EmployesType;
 use App\Repository\EmployesRepository;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api')]
+#[Route('/api', name: 'api_')]
 class EmployesController extends AbstractController
 {
     private $serializer;
@@ -66,13 +67,33 @@ class EmployesController extends AbstractController
     {
         $decoded = json_decode($request->getContent());
 
-        $employe = new Employes();
-        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
-        $employe->setEmployesEntreprise($employe_id);
-        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
-        $employe->setStatus($selectedStatus);
+        // Recherche de l'entreprise associée à l'employé
+        $employeEntreprise = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
 
-        $entityManager->persist($employe);
+        if (!$employeEntreprise) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+            ]);
+        }
+
+        // Recherche de l'utilisateur ayant le rôle employé
+        $userRepository = $entityManager->getRepository(User::class);
+        $employeUser = $userRepository->findOneBy(['id' => $decoded->user_id, 'roles' => 'EMPLOYE']);
+
+        if (!$employeUser) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'utilisateur employé spécifié n\'existe pas.',
+            ]);
+        }
+
+        // Création d'un nouvel employé et association à l'entreprise et à l'utilisateur
+        $newEmploye = new Employes();
+        $newEmploye->setEmployesEntreprise($employeEntreprise);
+        $newEmploye->setUser($employeUser);
+
+        $entityManager->persist($newEmploye);
         $entityManager->flush();
 
         return $this->json([
@@ -103,10 +124,30 @@ class EmployesController extends AbstractController
     {
         $decoded = json_decode($request->getContent());
 
-        $employe_id = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
-        $employe->setEmployesEntreprise($employe_id);
-        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
-        $employe->setStatus($selectedStatus);
+        // Recherche de l'entreprise associée à l'employé
+        $employeEntreprise = $entityManager->getRepository(Entreprise::class)->find($decoded->employes_entreprise_id);
+
+        if (!$employeEntreprise) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+            ]);
+        }
+
+        // Recherche de l'utilisateur ayant le rôle employé
+        $userRepository = $entityManager->getRepository(User::class);
+        $employeUser = $userRepository->findOneBy(['id' => $decoded->user_id, 'roles' => 'EMPLOYE']);
+
+        if (!$employeUser) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'utilisateur employé spécifié n\'existe pas.',
+            ]);
+        }
+
+        // Mise à jour des informations de l'employé avec l'utilisateur associé
+        $employe->setEmployesEntreprise($employeEntreprise);
+        $employe->setUser($employeUser);
 
         $entityManager->flush();
 
@@ -115,6 +156,7 @@ class EmployesController extends AbstractController
             'message' => 'Les informations de l\'employé ont été mises à jour avec succès.',
         ]);
     }
+
 
     #[Route('/{id}/delete_employe', name: 'app_employes_delete', methods: ['POST'])]
     public function delete(Request $request, Employes $employe, EntityManagerInterface $entityManager): JsonResponse

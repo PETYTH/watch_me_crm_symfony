@@ -1,2 +1,8 @@
-<p style="font-family: 'Alkatra', cursive; font-size: 17px; text-shadow: 1px 1px 5px #fff;">Votre message nous a bien été envoyé !</p>
-<p style="font-family: 'Alkatra', cursive;  font-size: 17px; text-shadow: 1px 1px 5px #fff;">Nous faisons de notre possible pour vous répondre dans les plus bref délais, Merci <i class="fa-solid lien fa-thumbs-up"></i></p>
+<div>
+    <h1 style="text-align: left">Bonjour <span style="font-weight: bold"><?= $firstname ?> <?= $name ?>,</span></h1><br>
+    <p style="text-align: center; font-weight: bold; color: #FB6316; font-size: 21px"><?= $message ?>.</p>
+    <p>Nous avons enregistré les modifications que vous avez apportées à votre profil</p>
+    <p>Cordialement,<p>
+    <p style="font-weight: bold">L'équipe Watch Me</p>
+</div>
+

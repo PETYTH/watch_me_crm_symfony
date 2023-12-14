@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api')]
+#[Route('/api', name: 'api_')]
 class CommandesController extends AbstractController
 {
     private $serializer;
@@ -72,10 +72,35 @@ class CommandesController extends AbstractController
         $entityManager->persist($commande);
         $entityManager->flush();
 
+        // Décrémenter la quantité de produit dans le stock si le statut est "payé"
+        if ($selectedStatus === CommandeStatus::effectue) {
+            $produit = $commande->getProduit();
+            if ($produit) {
+                $stock = $produit->getProduitStock();
+                if ($stock) {
+                    $quantiteActuelle = $stock->getNombre();
+                    $quantiteDecrementee = 1;
+
+                    // Vérification de disponibilité
+                    if ($quantiteActuelle >= $quantiteDecrementee) {
+                        $nouvelleQuantite = max($quantiteActuelle - $quantiteDecrementee, 0);
+                        $stock->setNombre($nouvelleQuantite);
+                        $entityManager->flush();
+                    } else {
+                        // Gérer le cas où la quantité est insuffisante
+                        return $this->json([
+                            'error' => 'Quantité insuffisante en stock',
+                        ]);
+                    }
+                }
+            }
+        }
+
         return $this->json([
             'Message' => 'La nouvelle commande a été ajoutée avec succès.',
         ]);
     }
+
 
 
     #[Route('/{id}/show_commande', name: 'app_commandes_show', methods: ['GET'])]
@@ -118,12 +143,37 @@ class CommandesController extends AbstractController
         $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
         $commande->setStatus($selectedStatus);
 
+        // Décrémenter la quantité de produit dans le stock si le statut est "payé"
+        if ($selectedStatus === CommandeStatus::effectue) {
+            $produit = $commande->getProduit();
+            if ($produit) {
+                $stock = $produit->getProduitStock();
+                if ($stock) {
+                    $quantiteActuelle = $stock->getNombre();
+                    $quantiteDecrementee = 1;
+
+                    // Vérification de disponibilité
+                    if ($quantiteActuelle >= $quantiteDecrementee) {
+                        $nouvelleQuantite = max($quantiteActuelle - $quantiteDecrementee, 0);
+                        $stock->setNombre($nouvelleQuantite);
+                        $entityManager->flush();
+                    } else {
+                        // Gérer le cas où la quantité est insuffisante
+                        return $this->json([
+                            'error' => 'Quantité insuffisante en stock',
+                        ]);
+                    }
+                }
+            }
+        }
+
         $entityManager->flush();
 
         return $this->json([
             'Message' => 'Les informations de la commande ont été mises à jour avec succès.',
         ]);
     }
+
 
     #[Route('/{id}/delete_commande', name: 'app_commandes_delete', methods: ['POST'])]
     public function delete(Request $request, Commandes $commande, EntityManagerInterface $entityManager): JsonResponse

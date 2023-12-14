@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -39,19 +37,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthday = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $resetToken = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $modified_at = null;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: UserHasEntreprise::class)]
-    private Collection $users;
-
-    public function __construct()
-    {
-        $this->users = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -150,6 +143,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    public function setResetToken(?string $resetToken): static
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
 
     public function getBirthday(): ?\DateTimeInterface
     {
@@ -183,36 +188,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setModifiedAt(\DateTimeInterface $modified_at): static
     {
         $this->modified_at = $modified_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, UserHasEntreprise>
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(UserHasEntreprise $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(UserHasEntreprise $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getUsers() === $this) {
-                $user->setUsers(null);
-            }
-        }
 
         return $this;
     }

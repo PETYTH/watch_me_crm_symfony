@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api')]
+#[Route('/api', name: 'api_')]
 class EntrepriseController extends AbstractController
 {
     private $serializer;
@@ -24,6 +24,30 @@ class EntrepriseController extends AbstractController
     {
         $this->serializer = SerializerBuilder::create()->build();
     }
+
+    #[Route('/all_clients_entreprise/{entrepriseId}', name: 'app_all_clients', methods: ['GET'])]
+    public function getAllClientsByEntreprise(int $entrepriseId, EntrepriseRepository $entrepriseRepository): JsonResponse
+    {
+        $entreprise = $entrepriseRepository->findClientsByEntreprise($entrepriseId);
+
+        if (!$entreprise) {
+            return new JsonResponse(['error' => 'Entreprise non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
+        $clients = $entreprise->getClients(); // Supposons que vous avez une méthode "getClients" dans votre entité Entreprise
+
+        $context = SerializationContext::create()->setGroups([
+            'clients', // Ajoutez ici les groupes de sérialisation pour les clients
+            'default',
+        ]);
+
+        $clientsJson = $this->serializer->serialize($clients, 'json', $context);
+
+        return new JsonResponse(['clients' => json_decode($clientsJson)], Response::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+
+
 
     #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]
     public function index(EntrepriseRepository $entrepriseRepository): Response

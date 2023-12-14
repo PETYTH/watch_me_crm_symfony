@@ -18,8 +18,8 @@ class Stocks
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Serializer\Groups(['stock_numero', 'produits'])]
-    private ?string $numero = null;
+    #[Serializer\Groups(['stock_identifiant', 'produits'])]
+    private ?string $identifiant_stock = null;
 
     #[ORM\Column]
     #[Serializer\Groups(['stock_nombre', 'produits'])]
@@ -40,15 +40,15 @@ class Stocks
         return $this->id;
     }
 
-    #[Serializer\Groups(['stock_numero', 'produits'])]
-    public function getNumero(): ?string
+    #[Serializer\Groups(['stock_identifiant', 'produits'])]
+    public function getIdentifiantStock(): ?string
     {
-        return $this->numero;
+        return $this->identifiant_stock;
     }
 
-    public function setNumero(string $numero): static
+    public function setIdentifiantStock(string $identifiant_stock): static
     {
-        $this->numero = $numero;
+        $this->identifiant_stock = $identifiant_stock;
 
         return $this;
     }
@@ -88,7 +88,6 @@ class Stocks
     public function removeStockProduit(Produits $stockProduit): static
     {
         if ($this->Stock_produit->removeElement($stockProduit)) {
-            // set the owning side to null (unless already changed)
             if ($stockProduit->getProduitStock() === $this) {
                 $stockProduit->setProduitStock(null);
             }

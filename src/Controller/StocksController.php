@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api')]
+#[Route('/api', name: 'api_')]
 class StocksController extends AbstractController
 {
     private $serializer;
@@ -32,7 +32,7 @@ class StocksController extends AbstractController
 
         $context = SerializationContext::create()->setGroups([
             'stock_id',
-            'stock_numero',
+            'stock_identifiant',
             'stock_nombre',
             'stock_produit',
             'default',
@@ -49,7 +49,7 @@ class StocksController extends AbstractController
         $decoded = json_decode($request->getContent());
 
         $stock = new Stocks();
-        $stock->setNumero($decoded->numero);
+        $stock->setIdentifiantStock($decoded->stock_identifiant);
         $stock->setNombre($decoded->nombre);
 
         $entityManager->persist($stock);
@@ -67,7 +67,7 @@ class StocksController extends AbstractController
     {
         $context = SerializationContext::create()->setGroups([
             'stock_id',
-            'stock_numero',
+            'stock_identifiant',
             'stock_nombre',
             'stock_produit',
             'default',
@@ -83,7 +83,7 @@ class StocksController extends AbstractController
     {
         $decoded = json_decode($request->getContent());
 
-        $stock->setNumero($decoded->numero);
+        $stock->setIdentifiantStock($decoded->numero);
         $stock->setNombre($decoded->nombre);
 
         $entityManager->flush();

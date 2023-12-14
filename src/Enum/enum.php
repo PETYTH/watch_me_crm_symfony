@@ -36,13 +36,22 @@ enum UserStatus
         ];
     }
 }
-
 enum ClientStatus
 {
     const SUSPECT = 'SUSPECT';
     const LEAD = 'LEAD';
     const PROSPECT = 'PROSPECT';
     const CLIENT = 'CLIENT';
+
+    public static function getClientStatus(): array
+    {
+        return [
+            self::SUSPECT => 'SUSPECT',
+            self::LEAD => 'LEAD',
+            self::PROSPECT => 'PROSPECT',
+            self::CLIENT => 'CLIENT',
+        ];
+    }
 }
 
 enum CommandeStatus
@@ -60,4 +69,3 @@ enum CommandeStatus
         ];
     }
 }
-

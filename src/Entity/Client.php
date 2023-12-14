@@ -2,12 +2,15 @@
 
 namespace App\Entity;
 
+
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use App\Entity\Employes;
+use App\Entity\Entreprise;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -58,14 +61,21 @@ class Client
     #[Serializer\Groups(['client_commandes', 'clients', 'commandes'])]
     private Collection $Client_commande;
 
-    #[ORM\OneToMany(mappedBy: 'Client', targetEntity: ClientHasEntreprise::class)]
-    #[Serializer\Groups(['client_entreprises', 'clients'])]
-    private Collection $Client_entreprise;
+
+    #[ORM\ManyToOne(targetEntity: Employes::class)]
+    #[ORM\JoinColumn(name: "employe_id", referencedColumnName: "id")]
+    #[Serializer\Groups(['client_employe', 'clients', 'commandes'])]
+    private ?Employes $employe = null;
+
+    #[ORM\ManyToOne(targetEntity: Entreprise::class)]
+    #[ORM\JoinColumn(name: "entreprise_id", referencedColumnName: "id")]
+    #[Serializer\Groups(['client_entreprise', 'clients', 'commandes'])]
+    private ?Entreprise $entreprise = null;
+
 
     public function __construct()
     {
         $this->Client_commande = new ArrayCollection();
-        $this->Client_entreprise = new ArrayCollection();
     }
 
     #[Serializer\Groups(['client_id', 'commandes'])]
@@ -213,7 +223,6 @@ class Client
     public function removeClientCommande(Commandes $clientCommande): static
     {
         if ($this->Client_commande->removeElement($clientCommande)) {
-            // set the owning side to null (unless already changed)
             if ($clientCommande->getCommandeClient() === $this) {
                 $clientCommande->setCommandeClient(null);
             }
@@ -222,34 +231,25 @@ class Client
         return $this;
     }
 
-    /**
-     * @return Collection<int, ClientHasEntreprise>
-     */
-    #[Serializer\Groups(['client_entreprises'])]
-    public function getClientEntreprise(): Collection
+    public function getEmploye(): ?Employes
     {
-        return $this->Client_entreprise;
+        return $this->employe;
     }
 
-    public function addClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    public function setEmploye(?Employes $employe): static
     {
-        if (!$this->Client_entreprise->contains($clientEntreprise)) {
-            $this->Client_entreprise->add($clientEntreprise);
-            $clientEntreprise->setClient($this);
-        }
-
+        $this->employe = $employe;
         return $this;
     }
 
-    public function removeClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    public function getEntreprise(): ?Entreprise
     {
-        if ($this->Client_entreprise->removeElement($clientEntreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($clientEntreprise->getClient() === $this) {
-                $clientEntreprise->setClient(null);
-            }
-        }
+        return $this->entreprise;
+    }
 
+    public function setEntreprise(?Entreprise $entreprise): static
+    {
+        $this->entreprise = $entreprise;
         return $this;
     }
 }

@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Commandes;
 use App\Enum\ClientStatus;
+use App\Repository\EmployesRepository;
+use App\Repository\EntrepriseRepository;
 use DateTime;
 use App\Entity\Client;
-use App\Enum\UserStatus;
-use App\Form\ClientType;
+use App\Entity\Employes;
+use App\Entity\Entreprise;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
@@ -38,67 +40,8 @@ class ClientController extends AbstractController
         return new Response($clientsJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    #[Route('/new_client', name: 'app_client_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): JsonResponse
-    {
-        $decoded = json_decode($request->getContent());
-        $nom = $decoded->nom;
-        $prenom = $decoded->prenom;
-        $dateNaissance = DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance );
-
-        if (!$dateNaissance instanceof \DateTime) {
-            return $this->json([
-                'message' => 'Format de date d\'anniversaire invalide. Utilisez le format jour-mois-année.',
-                'success' => false,
-            ]);
-        }
-
-        $dateNaissance1 = \DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance)->format('Y-m-d');
-
-        $email = $decoded->email;
-        $telephone = $decoded->telephone;
-        $adresse = $decoded->adresse;
-        $codePostal = $decoded->codePostal;
-        $ville = $decoded->ville;
-
-        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
-
-
-        $client = new Client();
-        $client->setNom($nom);
-        $client->setPrenom($prenom);
-        $client->setDateNaissance(new \DateTime($dateNaissance1));
-        $client->setEmail($email);
-        $client->setTelephone($telephone);
-        $client->setAdresse($adresse);
-        $client->setCodePostal($codePostal);
-        $client->setVille($ville);
-        $client->setStatus($selectedStatus);
-
-        $em->persist($client);
-        $em->flush();
-
-        return $this->json([
-            'Message' => "Le client a bien été ajouté",
-        ]);
-    }
-
-    #[Route('/{id}/show_client', name: 'app_client_show', methods: ['GET'])]
-    public function show(Client $client): JsonResponse
-    {
-        $context = SerializationContext::create()->setGroups([
-            'clients',
-            'default',
-            'commandes',
-        ]);
-
-        $clientJson = $this->serializer->serialize($client, 'json', $context);
-
-        return new JsonResponse(['client' => json_decode($clientJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
-    }
-
-    #[Route('/{id}/edit_client', name: 'app_client_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/new_client', name: 'app_client_new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $em, EntrepriseRepository $entrepriseRepository, EmployesRepository $employesRepository): JsonResponse
     {
         $decoded = json_decode($request->getContent());
 
@@ -123,6 +66,29 @@ class ClientController extends AbstractController
 
         $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
 
+        $entrepriseId = $decoded->entrepriseId;
+        $entreprise = $entrepriseRepository->find($entrepriseId);
+
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Récupérez l'ID de l'employé existant que vous souhaitez lier au client
+        $employeId = $decoded->employeId;
+        $employe = $employesRepository->find($employeId);
+
+        if (!$employe) {
+            return $this->json([
+                'message' => 'L\'employé spécifié n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Création du client
+        $client = new Client();
         $client->setNom($nom);
         $client->setPrenom($prenom);
         $client->setDateNaissance(new \DateTime($dateNaissanceFormatted));
@@ -132,6 +98,93 @@ class ClientController extends AbstractController
         $client->setCodePostal($codePostal);
         $client->setVille($ville);
         $client->setStatus($selectedStatus);
+        $client->setEntreprise($entreprise);
+
+        // Lier le client à l'employé existant
+        $client->setEmploye($employe);
+
+        $em->persist($client);
+        $em->flush();
+
+        return $this->json([
+            'Message' => "Le client a été créé et lié à l'employé spécifié.",
+        ]);
+    }
+
+
+
+    #[Route('/{id}/show_client', name: 'app_client_show', methods: ['GET'])]
+    public function show(Client $client): JsonResponse
+    {
+        $context = SerializationContext::create()->setGroups([
+            'clients',
+            'default',
+            'commandes',
+        ]);
+
+        $clientJson = $this->serializer->serialize($client, 'json', $context);
+
+        return new JsonResponse(['client' => json_decode($clientJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+    #[Route('/{id}/edit_client', name: 'app_client_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Client $client, EntityManagerInterface $entityManager, EntrepriseRepository $entrepriseRepository, EmployesRepository $employesRepository): JsonResponse
+    {
+        $decoded = json_decode($request->getContent());
+
+        $nom = $decoded->nom;
+        $prenom = $decoded->prenom;
+        $dateNaissance = DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance);
+
+        if (!$dateNaissance instanceof \DateTime) {
+            return $this->json([
+                'message' => 'Format de date d\'anniversaire invalide. Utilisez le format jour-mois-année.',
+                'success' => false,
+            ]);
+        }
+
+        $dateNaissanceFormatted = \DateTime::createFromFormat('d-m-Y', $decoded->dateNaissance)->format('Y-m-d');
+
+        $email = $decoded->email;
+        $telephone = $decoded->telephone;
+        $adresse = $decoded->adresse;
+        $codePostal = $decoded->codePostal;
+        $ville = $decoded->ville;
+
+        $selectedStatus = $decoded->status[0] ?? ClientStatus::CLIENT;
+
+        $entrepriseId = $decoded->entrepriseId;
+        $entreprise = $entrepriseRepository->find($entrepriseId);
+
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Récupérez l'ID de l'employé existant que vous souhaitez lier au client
+        $employeId = $decoded->employeId;
+        $employe = $employesRepository->find($employeId);
+
+        if (!$employe) {
+            return $this->json([
+                'message' => 'L\'employé spécifié n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        $client->setNom($nom);
+        $client->setPrenom($prenom);
+        $client->setDateNaissance(new \DateTime($dateNaissanceFormatted));
+        $client->setEmail($email);
+        $client->setTelephone($telephone);
+        $client->setAdresse($adresse);
+        $client->setCodePostal($codePostal);
+        $client->setVille($ville);
+        $client->setStatus($selectedStatus);
+        $client->setEntreprise($entreprise);
+        $client->setEmploye($employe);
 
         $entityManager->flush();
 
@@ -140,6 +193,7 @@ class ClientController extends AbstractController
             'message' => 'Les informations du client ont été mises à jour avec succès.',
         ]);
     }
+
 
 
     #[Route('/{id}/delete_client', name: 'app_client_delete', methods: ['POST'])]
@@ -162,4 +216,6 @@ class ClientController extends AbstractController
             'message' => 'Le client a bien été supprimé.',
         ]);
     }
+
+
 }

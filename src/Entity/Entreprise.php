@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Client;
 use App\Repository\EntrepriseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -41,23 +42,20 @@ class Entreprise
     #[Serializer\Groups(['entreprise_chiffre_affaire', 'clients', 'commandes', 'employes'])]
     private ?int $chiffre_affaire = null;
 
-    #[ORM\OneToMany(mappedBy: 'Entreprise', targetEntity: UserHasEntreprise::class)]
-    #[Serializer\Groups(['entreprise_users', 'clients', 'commandes', 'employes'])]
-    private Collection $Entreprise;
 
     #[ORM\OneToMany(mappedBy: 'Employes_entreprise', targetEntity: Employes::class)]
     #[Serializer\Groups(['entreprise_employes', 'clients', 'commandes', 'employes'])]
     private Collection $Employes_entreprise;
 
-    #[ORM\OneToMany(mappedBy: 'Entreprise_client', targetEntity: ClientHasEntreprise::class)]
-    #[Serializer\Groups(['entreprise_clients', 'clients', 'commandes', 'employes'])]
-    private Collection $Entreprise_client;
+
+    #[ORM\OneToMany(mappedBy: "entreprise", targetEntity: Client::class)]
+    #[Serializer\Groups(['entreprise_employes', 'clients', 'commandes', 'employes'])]
+    private Collection $clients;
+
 
     public function __construct()
     {
-        $this->Entreprise = new ArrayCollection();
         $this->Employes_entreprise = new ArrayCollection();
-        $this->Entreprise_client = new ArrayCollection();
     }
 
     #[Serializer\Groups(['entreprise_id', 'clients', 'commandes', 'employes'])]
@@ -144,36 +142,11 @@ class Entreprise
         return $this;
     }
 
-    /**
-     * @return Collection<int, UserHasEntreprise>
-     */
-    #[Serializer\Groups(['entreprise_users', 'clients', 'commandes', 'employes'])]
-    public function getEntreprise(): Collection
+    public function getClients(): Collection
     {
-        return $this->Entreprise;
+        return $this->clients;
     }
 
-    public function addEntreprise(UserHasEntreprise $entreprise): static
-    {
-        if (!$this->Entreprise->contains($entreprise)) {
-            $this->Entreprise->add($entreprise);
-            $entreprise->setEntreprise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEntreprise(UserHasEntreprise $entreprise): static
-    {
-        if ($this->Entreprise->removeElement($entreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($entreprise->getEntreprise() === $this) {
-                $entreprise->setEntreprise(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Employes>
@@ -200,37 +173,6 @@ class Entreprise
             // set the owning side to null (unless already changed)
             if ($employesEntreprise->getEmployesEntreprise() === $this) {
                 $employesEntreprise->setEmployesEntreprise(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ClientHasEntreprise>
-     */
-    #[Serializer\Groups(['entreprise_clients', 'clients', 'commandes', 'employes'])]
-    public function getEntrepriseClient(): Collection
-    {
-        return $this->Entreprise_client;
-    }
-
-    public function addEntrepriseClient(ClientHasEntreprise $entrepriseClient): static
-    {
-        if (!$this->Entreprise_client->contains($entrepriseClient)) {
-            $this->Entreprise_client->add($entrepriseClient);
-            $entrepriseClient->setEntrepriseClient($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEntrepriseClient(ClientHasEntreprise $entrepriseClient): static
-    {
-        if ($this->Entreprise_client->removeElement($entrepriseClient)) {
-            // set the owning side to null (unless already changed)
-            if ($entrepriseClient->getEntrepriseClient() === $this) {
-                $entrepriseClient->setEntrepriseClient(null);
             }
         }
 

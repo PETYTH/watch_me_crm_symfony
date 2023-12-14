@@ -4,22 +4,44 @@ namespace App\Controller;
 
 use App\Entity\Produits;
 use App\Entity\Stocks;
+use App\Form\ProduitsType;
 use App\Repository\ProduitsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api', 'api_')]
+#[Route('/api', name: 'api_')]
 class ProduitsController extends AbstractController
 {
-    #[Route('/all_produits', name: 'app_produits_index', methods: ['GET'])]
-    public function index(ProduitsRepository $produitsRepository): JsonResponse
+    private $serializer;
+
+    public function __construct()
     {
-        return $this->Json([
-            'produits' => $produitsRepository->findAll(),
+        $this->serializer = SerializerBuilder::create()->build();
+    }
+
+    #[Route('/all_produits', name: 'app_produits_index', methods: ['GET'])]
+    public function index(ProduitsRepository $produitsRepository): Response
+    {
+        $produits = $produitsRepository->findAll();
+
+        $context = SerializationContext::create()->setGroups([
+            'produit_id',
+            'produit_nom',
+            'produit_prix',
+            'produit_image',
+            'produit_produit_stock',
+            'default',
         ]);
+
+        $produitsJson = $this->serializer->serialize($produits, 'json', $context);
+
+        return new Response($produitsJson, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/new_produit', name: 'app_produits_new', methods: ['POST'])]
@@ -46,15 +68,18 @@ class ProduitsController extends AbstractController
     #[Route('/{id}/show_produit', name: 'app_produits_show', methods: ['GET'])]
     public function show(Produits $produit): JsonResponse
     {
-        return $this->json([
-            'produit' => [
-                'id' => $produit->getId(),
-                'produit_stock_id' => $produit->getProduitStock(),
-                'nom' => $produit->getNom(),
-                'prix' => $produit->getPrix(),
-                'image' => $produit->getImage(),
-            ],
-        ], 200, [], ['groups' => 'produit']);
+        $context = SerializationContext::create()->setGroups([
+            'produit_id',
+            'produit_nom',
+            'produit_prix',
+            'produit_image',
+            'produit_produit_stock',
+            'default',
+        ]);
+
+        $produitJson = $this->serializer->serialize($produit, 'json', $context);
+
+        return new JsonResponse(['produit' => json_decode($produitJson)], JsonResponse::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
 
@@ -76,7 +101,6 @@ class ProduitsController extends AbstractController
             'message' => 'Les informations du produit ont été mises à jour avec succès.',
         ]);
     }
-
 
     #[Route('/{id}/delete_produit', name: 'app_produits_delete', methods: ['POST'])]
     public function delete(Produits $produit, EntityManagerInterface $entityManager): JsonResponse

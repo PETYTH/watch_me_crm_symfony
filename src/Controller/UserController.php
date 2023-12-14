@@ -5,7 +5,10 @@ namespace App\Controller;
 use DateTime;
 use App\Repository\UserRepository;
 use App\Entity\User;
+use App\Entity\Employes; // Importez l'entité Employes
 use App\Enum\UserRole;
+use App\Enum\UserStatus;
+use App\Repository\EntrepriseRepository; // Importez le repository EntrepriseRepository
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,7 +33,7 @@ class UserController extends AbstractController
 
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher,  MailPerso $mailSender  ): JsonResponse
+    public function register(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher,  MailPerso $mailSender,  EntrepriseRepository $entrepriseRepository   ): JsonResponse
     {
         $decoded = json_decode($request->getContent());
         $email = $decoded->email;
@@ -53,6 +56,17 @@ class UserController extends AbstractController
 
         // Par defaut mettre le role à : UserRole::EMPLOYE
         $selectedRole = $decoded->roles[0] ?? UserRole::EMPLOYE;
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+
+        $entrepriseId = $decoded->entrepriseId; // À adapter à la façon dont vous récupérez l'ID de l'entreprise
+        $entreprise = $entrepriseRepository->find($entrepriseId);
+
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
 
         $user = new User();
         $hashedPassword = $passwordHasher->hashPassword(
@@ -67,12 +81,20 @@ class UserController extends AbstractController
         $user->setFirstname($firstname);
         $user->setCreatedAt(new \DateTime());
 
+        // Création de l'employé associé à l'utilisateur et à l'entreprise
+        $employe = new Employes();
+        $employe->setEmployesEntreprise($entreprise);
+        $employe->setStatus($selectedStatus);
+        $employe->setUser($user);
+
+        $em->persist($user);
+        $em->persist($employe);
+        $em->flush();
+
         // Envoi d'un e-mail à l'utilisateur avec son identifiant (email) et le mot de passe
         $subject = 'Confirmation d\'inscription';
         $mailSender->sendMailRegister($email, $subject, $firstname, $name, $plainPassword);
 
-        $em->persist($user);
-        $em->flush();
 
         return $this->json([
             'message' => 'Inscription réussie. Un e-mail de confirmation a été envoyé avec vos identifiants de connexion.',
@@ -91,7 +113,7 @@ class UserController extends AbstractController
 
 
     #[Route('/{id}/user_edit', name: 'app_user_edit', methods: ['POST'])]
-    public function edit(int $id, EntityManagerInterface $em, Request $request, MailPerso $mailSender): JsonResponse
+    public function edit(int $id, EntityManagerInterface $em, Request $request, MailPerso $mailSender, EntrepriseRepository $entrepriseRepository, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($id);
 
@@ -115,9 +137,21 @@ class UserController extends AbstractController
         $birthdayFormatted = $birthday->format('Y-m-d');
         $selectedRole = $decoded->roles[0] ?? UserRole::EMPLOYE;
 
-        // Utilisation de l'ancien mot de passe de la base de données sans le modifier
-        $oldPassword = $user->getPassword();
+        // Récupérer les données de l'entreprise et vérifier si elle existe
+        $entrepriseId = $decoded->entrepriseId; // À adapter à la façon dont vous récupérez l'ID de l'entreprise
+        $entreprise = $entrepriseRepository->find($entrepriseId);
 
+        if (!$entreprise) {
+            return $this->json([
+                'message' => 'L\'entreprise spécifiée n\'existe pas.',
+                'success' => false,
+            ]);
+        }
+
+        // Garder le mot de passe existant de l'utilisateur
+        $plainPassword = $user->getPassword();
+
+        // Mise à jour des données utilisateur
         $user->setEmail($email);
         $user->setRoles([$selectedRole]);
         $user->setName($name);
@@ -126,21 +160,23 @@ class UserController extends AbstractController
         $user->setModifiedAt(new \DateTime());
 
         // Utilisation de l'ancien mot de passe stocké en base de données
-        $user->setPassword($oldPassword);
+        $user->setPassword($plainPassword);
 
         $em->persist($user);
         $em->flush();
 
-        $subject = 'Mise à jour des vos informations Nous avons enregistré les modifications que vous avez apportées à votre profil';
-        $message = 'Vos informations ont été mises à jour.';
+        $subject = 'Mise à jour des vos informations, Nous avons enregistré les modifications que vous avez apportées à votre profil';
+        $message = 'Vos informations ont été mises à jour avec succès.';
 
         // Utilisation de la méthode sendMailResetPassword de MailPerso
         $mailSender->sendMessage($email, $subject, $message, $name, $firstname);
+
         return $this->json([
             'message' => 'Utilisateur mis à jour avec succès',
             'success' => true,
         ]);
     }
+
 
 
 

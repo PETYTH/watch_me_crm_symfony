@@ -2,12 +2,15 @@
 
 namespace App\Entity;
 
+
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use App\Entity\Employes;
+use App\Entity\Entreprise;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -15,63 +18,73 @@ class Client
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Serializer\Groups(['clients'])]
+    #[Serializer\Groups(['client_id', 'clients', 'commandes'])]
     private ?int $id = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_nom', 'clients', 'commandes'])]
     private ?string $nom = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_prenom', 'clients', 'commandes'])]
     private ?string $prenom = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Serializer\Groups(['client_date_naissance', 'clients'])]
     private ?\DateTimeInterface $date_naissance = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_email', 'clients'])]
     private ?string $email = null;
 
-
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column]
+    #[Serializer\Groups(['client_telephone', 'clients'])]
     private ?int $telephone = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_adresse', 'clients'])]
     private ?string $adresse = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column]
+    #[Serializer\Groups(['client_code_postal', 'clients'])]
     private ?int $code_postal = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_ville', 'clients'])]
     private ?string $ville = null;
 
-    #[Serializer\Groups(['clients'])]
     #[ORM\Column(length: 255)]
+    #[Serializer\Groups(['client_status', 'clients'])]
     private ?string $status = null;
 
     #[ORM\OneToMany(mappedBy: 'Commande_client', targetEntity: Commandes::class)]
+    #[Serializer\Groups(['client_commandes', 'clients', 'commandes'])]
     private Collection $Client_commande;
 
-    #[ORM\OneToMany(mappedBy: 'Client', targetEntity: ClientHasEntreprise::class)]
-    private Collection $Client_entreprise;
+
+    #[ORM\ManyToOne(targetEntity: Employes::class)]
+    #[ORM\JoinColumn(name: "employe_id", referencedColumnName: "id")]
+    #[Serializer\Groups(['client_employe', 'clients', 'commandes'])]
+    private ?Employes $employe = null;
+
+    #[ORM\ManyToOne(targetEntity: Entreprise::class)]
+    #[ORM\JoinColumn(name: "entreprise_id", referencedColumnName: "id")]
+    #[Serializer\Groups(['client_entreprise', 'clients', 'commandes'])]
+    private ?Entreprise $entreprise = null;
+
 
     public function __construct()
     {
         $this->Client_commande = new ArrayCollection();
-        $this->Client_entreprise = new ArrayCollection();
     }
 
+    #[Serializer\Groups(['client_id', 'commandes'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Serializer\Groups(['client_nom', 'commandes'])]
     public function getNom(): ?string
     {
         return $this->nom;
@@ -84,6 +97,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_prenom'])]
     public function getPrenom(): ?string
     {
         return $this->prenom;
@@ -96,6 +110,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_date_naissance'])]
     public function getDateNaissance(): ?\DateTimeInterface
     {
         return $this->date_naissance;
@@ -108,6 +123,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_email'])]
     public function getEmail(): ?string
     {
         return $this->email;
@@ -120,6 +136,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_telephone'])]
     public function getTelephone(): ?int
     {
         return $this->telephone;
@@ -132,6 +149,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_adresse'])]
     public function getAdresse(): ?string
     {
         return $this->adresse;
@@ -144,6 +162,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_code_postal'])]
     public function getCodePostal(): ?int
     {
         return $this->code_postal;
@@ -156,6 +175,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_ville'])]
     public function getVille(): ?string
     {
         return $this->ville;
@@ -168,6 +188,7 @@ class Client
         return $this;
     }
 
+    #[Serializer\Groups(['client_status'])]
     public function getStatus(): ?string
     {
         return $this->status;
@@ -180,11 +201,10 @@ class Client
         return $this;
     }
 
-
-
     /**
      * @return Collection<int, Commandes>
      */
+    #[Serializer\Groups(['client_commandes'])]
     public function getClientCommande(): Collection
     {
         return $this->Client_commande;
@@ -203,7 +223,6 @@ class Client
     public function removeClientCommande(Commandes $clientCommande): static
     {
         if ($this->Client_commande->removeElement($clientCommande)) {
-            // set the owning side to null (unless already changed)
             if ($clientCommande->getCommandeClient() === $this) {
                 $clientCommande->setCommandeClient(null);
             }
@@ -212,36 +231,25 @@ class Client
         return $this;
     }
 
-    /**
-     * @return Collection<int, ClientHasEntreprise>
-     */
-    public function getClientEntreprise(): Collection
+    public function getEmploye(): ?Employes
     {
-        return $this->Client_entreprise;
+        return $this->employe;
     }
 
-    public function addClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    public function setEmploye(?Employes $employe): static
     {
-        if (!$this->Client_entreprise->contains($clientEntreprise)) {
-            $this->Client_entreprise->add($clientEntreprise);
-            $clientEntreprise->setClient($this);
-        }
-
+        $this->employe = $employe;
         return $this;
     }
 
-    public function removeClientEntreprise(ClientHasEntreprise $clientEntreprise): static
+    public function getEntreprise(): ?Entreprise
     {
-        if ($this->Client_entreprise->removeElement($clientEntreprise)) {
-            // set the owning side to null (unless already changed)
-            if ($clientEntreprise->getClient() === $this) {
-                $clientEntreprise->setClient(null);
-            }
-        }
-
-        return $this;
+        return $this->entreprise;
     }
 
-
-
+    public function setEntreprise(?Entreprise $entreprise): static
+    {
+        $this->entreprise = $entreprise;
+        return $this;
+    }
 }

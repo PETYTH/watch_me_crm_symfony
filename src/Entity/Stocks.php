@@ -6,6 +6,7 @@ use App\Repository\StocksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: StocksRepository::class)]
 class Stocks
@@ -13,15 +14,19 @@ class Stocks
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['stock_id', 'produits'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $numero = null;
+    #[Serializer\Groups(['stock_identifiant', 'produits'])]
+    private ?string $identifiant_stock = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['stock_nombre', 'produits'])]
     private ?int $nombre = null;
 
     #[ORM\OneToMany(mappedBy: 'produit_stock', targetEntity: Produits::class)]
+    #[Serializer\Groups(['stock_produit', 'produits'])]
     private Collection $Stock_produit;
 
     public function __construct()
@@ -29,23 +34,26 @@ class Stocks
         $this->Stock_produit = new ArrayCollection();
     }
 
+    #[Serializer\Groups(['stock_id', 'produits'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNumero(): ?string
+    #[Serializer\Groups(['stock_identifiant', 'produits'])]
+    public function getIdentifiantStock(): ?string
     {
-        return $this->numero;
+        return $this->identifiant_stock;
     }
 
-    public function setNumero(string $numero): static
+    public function setIdentifiantStock(string $identifiant_stock): static
     {
-        $this->numero = $numero;
+        $this->identifiant_stock = $identifiant_stock;
 
         return $this;
     }
 
+    #[Serializer\Groups(['stock_nombre', 'produits'])]
     public function getNombre(): ?int
     {
         return $this->nombre;
@@ -61,6 +69,7 @@ class Stocks
     /**
      * @return Collection<int, Produits>
      */
+    #[Serializer\Groups(['stock_produit', 'produits'])]
     public function getStockProduit(): Collection
     {
         return $this->Stock_produit;
@@ -79,7 +88,6 @@ class Stocks
     public function removeStockProduit(Produits $stockProduit): static
     {
         if ($this->Stock_produit->removeElement($stockProduit)) {
-            // set the owning side to null (unless already changed)
             if ($stockProduit->getProduitStock() === $this) {
                 $stockProduit->setProduitStock(null);
             }

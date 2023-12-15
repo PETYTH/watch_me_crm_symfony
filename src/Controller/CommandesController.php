@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Client;
 use App\Entity\Commandes;
+use App\Entity\Produits;
 use App\Enum\CommandeStatus;
 use App\Form\CommandesType;
 use App\Repository\CommandesRepository;
@@ -69,6 +70,8 @@ class CommandesController extends AbstractController
         $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
         $commande->setStatus($selectedStatus);
 
+        $commandeProduitId = $entityManager->getRepository(Produits::class)->find($decoded->produit_id);
+        $commande->setProduit($commandeProduitId);
 
         // Décrémenter la quantité de produit dans le stock si le statut est "payé"
         if ($selectedStatus === CommandeStatus::effectue) {

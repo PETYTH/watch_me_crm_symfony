@@ -103,7 +103,7 @@ class UserController extends AbstractController
 
     }
 
-    #[Route('/{id}/show', name: 'app_user_show', methods: ['GET'])]
+    #[Route('/{id}/show_user', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): JsonResponse
     {
         return $this->json([
@@ -186,7 +186,6 @@ class UserController extends AbstractController
             'success' => true,
         ]);
     }
-
 
 
 

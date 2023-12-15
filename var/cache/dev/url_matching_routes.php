@@ -21,7 +21,6 @@ return [
         '/api/all_employes' => [[['_route' => 'api_app_employes_index', '_controller' => 'App\\Controller\\EmployesController::index'], null, ['GET' => 0], null, false, false, null]],
         '/api/count_employes' => [[['_route' => 'api_app_employes_count', '_controller' => 'App\\Controller\\EmployesController::count'], null, ['GET' => 0], null, false, false, null]],
         '/api/new_employe' => [[['_route' => 'api_app_employes_new', '_controller' => 'App\\Controller\\EmployesController::new'], null, ['POST' => 0], null, false, false, null]],
-        '/api/all_clients_entreprise' => [[['_route' => 'api_app_all_clients', '_controller' => 'App\\Controller\\EntrepriseController::getAllClients'], null, ['GET' => 0], null, false, false, null]],
         '/api/all_entreprises' => [[['_route' => 'api_app_entreprise_index', '_controller' => 'App\\Controller\\EntrepriseController::index'], null, ['GET' => 0], null, false, false, null]],
         '/api/count_entreprises' => [[['_route' => 'api_app_entreprises_count', '_controller' => 'App\\Controller\\EntrepriseController::count'], null, ['GET' => 0], null, false, false, null]],
         '/api/new_entreprise' => [[['_route' => 'api_app_entreprise_new', '_controller' => 'App\\Controller\\EntrepriseController::new'], null, ['POST' => 0], null, false, false, null]],
@@ -51,65 +50,69 @@ return [
                             .'|(*:211)'
                         .')'
                         .'|([^/]++)/(?'
-                            .'|show(?'
-                                .'|_(?'
-                                    .'|c(?'
-                                        .'|lient(*:252)'
-                                        .'|ommande(*:267)'
-                                    .')'
-                                    .'|e(?'
-                                        .'|mploye(*:286)'
-                                        .'|ntreprise(*:303)'
-                                    .')'
-                                    .'|produit(*:319)'
-                                    .'|stock(*:332)'
+                            .'|show_(?'
+                                .'|c(?'
+                                    .'|lient(*:249)'
+                                    .'|ommande(*:264)'
                                 .')'
-                                .'|(*:341)'
+                                .'|employe(*:280)'
                             .')'
                             .'|edit_(?'
                                 .'|c(?'
-                                    .'|lient(*:367)'
-                                    .'|ommande(*:382)'
+                                    .'|lient(*:306)'
+                                    .'|ommande(*:321)'
                                 .')'
-                                .'|e(?'
-                                    .'|mploye(*:401)'
-                                    .'|ntreprise(*:418)'
-                                .')'
-                                .'|produit(*:434)'
-                                .'|stock(*:447)'
+                                .'|employe(*:337)'
                             .')'
                             .'|delete_(?'
                                 .'|c(?'
-                                    .'|lient(*:475)'
-                                    .'|ommande(*:490)'
+                                    .'|lient(*:365)'
+                                    .'|ommande(*:380)'
                                 .')'
-                                .'|e(?'
-                                    .'|mploye(*:509)'
-                                    .'|ntreprise(*:526)'
+                                .'|employe(*:396)'
+                            .')'
+                        .')'
+                        .'|all_clients_entreprise/([^/]++)(*:437)'
+                        .'|count_clients_entreprise/([^/]++)(*:478)'
+                        .'|([^/]++)/(?'
+                            .'|show(?'
+                                .'|_(?'
+                                    .'|entreprise(*:519)'
+                                    .'|produit(*:534)'
+                                    .'|stock(*:547)'
                                 .')'
-                                .'|produit(*:542)'
-                                .'|stock(*:555)'
+                                .'|(*:556)'
+                            .')'
+                            .'|edit_(?'
+                                .'|entreprise(*:583)'
+                                .'|produit(*:598)'
+                                .'|stock(*:611)'
+                            .')'
+                            .'|delete_(?'
+                                .'|entreprise(*:640)'
+                                .'|produit(*:655)'
+                                .'|stock(*:668)'
                             .')'
                             .'|user_(?'
-                                .'|edit(*:576)'
-                                .'|delete(*:590)'
+                                .'|edit(*:689)'
+                                .'|delete(*:703)'
                             .')'
                         .')'
                     .')'
                 .')'
                 .'|/_(?'
-                    .'|error/(\\d+)(?:\\.([^/]++))?(*:633)'
-                    .'|wdt/([^/]++)(*:653)'
+                    .'|error/(\\d+)(?:\\.([^/]++))?(*:746)'
+                    .'|wdt/([^/]++)(*:766)'
                     .'|profiler/([^/]++)(?'
                         .'|/(?'
-                            .'|search/results(*:699)'
-                            .'|router(*:713)'
+                            .'|search/results(*:812)'
+                            .'|router(*:826)'
                             .'|exception(?'
-                                .'|(*:733)'
-                                .'|\\.css(*:746)'
+                                .'|(*:846)'
+                                .'|\\.css(*:859)'
                             .')'
                         .')'
-                        .'|(*:756)'
+                        .'|(*:869)'
                     .')'
                 .')'
             .')/?$}sDu',
@@ -129,34 +132,36 @@ return [
             [['_route' => '_api_validation_errors_hydra', '_controller' => 'api_platform.symfony.main_controller', '_format' => null, '_stateless' => true, '_api_resource_class' => 'ApiPlatform\\Symfony\\Validator\\Exception\\ValidationException', '_api_operation_name' => '_api_validation_errors_hydra'], ['id'], ['GET' => 0], null, false, true, null],
             [['_route' => '_api_validation_errors_jsonapi', '_controller' => 'api_platform.symfony.main_controller', '_format' => null, '_stateless' => true, '_api_resource_class' => 'ApiPlatform\\Symfony\\Validator\\Exception\\ValidationException', '_api_operation_name' => '_api_validation_errors_jsonapi'], ['id'], ['GET' => 0], null, false, true, null],
         ],
-        252 => [[['_route' => 'api_app_client_show', '_controller' => 'App\\Controller\\ClientController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        267 => [[['_route' => 'api_app_commandes_show', '_controller' => 'App\\Controller\\CommandesController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        286 => [[['_route' => 'api_app_employes_show', '_controller' => 'App\\Controller\\EmployesController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        303 => [[['_route' => 'api_app_entreprise_show', '_controller' => 'App\\Controller\\EntrepriseController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        319 => [[['_route' => 'api_app_produits_show', '_controller' => 'App\\Controller\\ProduitsController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        332 => [[['_route' => 'api_app_stocks_show', '_controller' => 'App\\Controller\\StocksController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        341 => [[['_route' => 'api_app_user_show', '_controller' => 'App\\Controller\\UserController::show'], ['id'], ['GET' => 0], null, false, false, null]],
-        367 => [[['_route' => 'api_app_client_edit', '_controller' => 'App\\Controller\\ClientController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        382 => [[['_route' => 'api_app_commandes_edit', '_controller' => 'App\\Controller\\CommandesController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        401 => [[['_route' => 'api_app_employes_edit', '_controller' => 'App\\Controller\\EmployesController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        418 => [[['_route' => 'api_app_entreprise_edit', '_controller' => 'App\\Controller\\EntrepriseController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        434 => [[['_route' => 'api_app_produits_edit', '_controller' => 'App\\Controller\\ProduitsController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        447 => [[['_route' => 'api_app_stocks_edit', '_controller' => 'App\\Controller\\StocksController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        475 => [[['_route' => 'api_app_client_delete', '_controller' => 'App\\Controller\\ClientController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        490 => [[['_route' => 'api_app_commandes_delete', '_controller' => 'App\\Controller\\CommandesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        509 => [[['_route' => 'api_app_employes_delete', '_controller' => 'App\\Controller\\EmployesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        526 => [[['_route' => 'api_app_entreprise_delete', '_controller' => 'App\\Controller\\EntrepriseController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        542 => [[['_route' => 'api_app_produits_delete', '_controller' => 'App\\Controller\\ProduitsController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        555 => [[['_route' => 'api_app_stocks_delete', '_controller' => 'App\\Controller\\StocksController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        576 => [[['_route' => 'api_app_user_edit', '_controller' => 'App\\Controller\\UserController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        590 => [[['_route' => 'api_app_user_delete', '_controller' => 'App\\Controller\\UserController::delete'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        633 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
-        653 => [[['_route' => '_wdt', '_controller' => 'web_profiler.controller.profiler::toolbarAction'], ['token'], null, null, false, true, null]],
-        699 => [[['_route' => '_profiler_search_results', '_controller' => 'web_profiler.controller.profiler::searchResultsAction'], ['token'], null, null, false, false, null]],
-        713 => [[['_route' => '_profiler_router', '_controller' => 'web_profiler.controller.router::panelAction'], ['token'], null, null, false, false, null]],
-        733 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
-        746 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
-        756 => [
+        249 => [[['_route' => 'api_app_client_show', '_controller' => 'App\\Controller\\ClientController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        264 => [[['_route' => 'api_app_commandes_show', '_controller' => 'App\\Controller\\CommandesController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        280 => [[['_route' => 'api_app_employes_show', '_controller' => 'App\\Controller\\EmployesController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        306 => [[['_route' => 'api_app_client_edit', '_controller' => 'App\\Controller\\ClientController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        321 => [[['_route' => 'api_app_commandes_edit', '_controller' => 'App\\Controller\\CommandesController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        337 => [[['_route' => 'api_app_employes_edit', '_controller' => 'App\\Controller\\EmployesController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        365 => [[['_route' => 'api_app_client_delete', '_controller' => 'App\\Controller\\ClientController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        380 => [[['_route' => 'api_app_commandes_delete', '_controller' => 'App\\Controller\\CommandesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        396 => [[['_route' => 'api_app_employes_delete', '_controller' => 'App\\Controller\\EmployesController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        437 => [[['_route' => 'api_app_all_clients', '_controller' => 'App\\Controller\\EntrepriseController::getAllClientsByEntreprise'], ['entrepriseId'], ['GET' => 0], null, false, true, null]],
+        478 => [[['_route' => 'api_app_count_clients', '_controller' => 'App\\Controller\\EntrepriseController::countClientsByEntreprise'], ['entrepriseId'], ['GET' => 0], null, false, true, null]],
+        519 => [[['_route' => 'api_app_entreprise_show', '_controller' => 'App\\Controller\\EntrepriseController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        534 => [[['_route' => 'api_app_produits_show', '_controller' => 'App\\Controller\\ProduitsController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        547 => [[['_route' => 'api_app_stocks_show', '_controller' => 'App\\Controller\\StocksController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        556 => [[['_route' => 'api_app_user_show', '_controller' => 'App\\Controller\\UserController::show'], ['id'], ['GET' => 0], null, false, false, null]],
+        583 => [[['_route' => 'api_app_entreprise_edit', '_controller' => 'App\\Controller\\EntrepriseController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        598 => [[['_route' => 'api_app_produits_edit', '_controller' => 'App\\Controller\\ProduitsController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        611 => [[['_route' => 'api_app_stocks_edit', '_controller' => 'App\\Controller\\StocksController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        640 => [[['_route' => 'api_app_entreprise_delete', '_controller' => 'App\\Controller\\EntrepriseController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        655 => [[['_route' => 'api_app_produits_delete', '_controller' => 'App\\Controller\\ProduitsController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        668 => [[['_route' => 'api_app_stocks_delete', '_controller' => 'App\\Controller\\StocksController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        689 => [[['_route' => 'api_app_user_edit', '_controller' => 'App\\Controller\\UserController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        703 => [[['_route' => 'api_app_user_delete', '_controller' => 'App\\Controller\\UserController::delete'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        746 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
+        766 => [[['_route' => '_wdt', '_controller' => 'web_profiler.controller.profiler::toolbarAction'], ['token'], null, null, false, true, null]],
+        812 => [[['_route' => '_profiler_search_results', '_controller' => 'web_profiler.controller.profiler::searchResultsAction'], ['token'], null, null, false, false, null]],
+        826 => [[['_route' => '_profiler_router', '_controller' => 'web_profiler.controller.router::panelAction'], ['token'], null, null, false, false, null]],
+        846 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
+        859 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
+        869 => [
             [['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

@@ -146,6 +146,7 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         ),
         'F' => 
         array (
+            'Faker\\' => 6,
             'FOS\\RestBundle\\' => 15,
         ),
         'E' => 
@@ -553,6 +554,10 @@ class ComposerStaticInite1265916685a73d2a4f1c37692aeed30
         'JMS\\SerializerBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/jms/serializer-bundle',
+        ),
+        'Faker\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fzaninotto/faker/src/Faker',
         ),
         'FOS\\RestBundle\\' => 
         array (

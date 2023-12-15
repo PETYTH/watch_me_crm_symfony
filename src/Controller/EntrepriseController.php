@@ -46,7 +46,13 @@ class EntrepriseController extends AbstractController
         return new JsonResponse(['clients' => json_decode($clientsJson)], Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
+    #[Route('/count_clients_entreprise/{entrepriseId}', name: 'app_count_clients', methods: ['GET'])]
+    public function countClientsByEntreprise(int $entrepriseId, EntrepriseRepository $entrepriseRepository): JsonResponse
+    {
+        $countsByStatus = $entrepriseRepository->countClientsByStatus($entrepriseId);
 
+        return new JsonResponse(['countsByStatus' => $countsByStatus], Response::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
 
 
     #[Route('/all_entreprises', name: 'app_entreprise_index', methods: ['GET'])]

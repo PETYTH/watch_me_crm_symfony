@@ -99,6 +99,7 @@ return array(
     'Lcobucci\\Clock\\' => array($vendorDir . '/lcobucci/clock/src'),
     'JMS\\Serializer\\' => array($vendorDir . '/jms/serializer/src'),
     'JMS\\SerializerBundle\\' => array($vendorDir . '/jms/serializer-bundle'),
+    'Faker\\' => array($vendorDir . '/fzaninotto/faker/src/Faker'),
     'FOS\\RestBundle\\' => array($vendorDir . '/friendsofsymfony/rest-bundle'),
     'Egulias\\EmailValidator\\' => array($vendorDir . '/egulias/email-validator/src'),
     'Doctrine\\SqlFormatter\\' => array($vendorDir . '/doctrine/sql-formatter/src'),

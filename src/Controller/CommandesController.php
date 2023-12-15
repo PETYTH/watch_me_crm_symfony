@@ -69,8 +69,6 @@ class CommandesController extends AbstractController
         $selectedStatus = $decoded->status[0] ?? CommandeStatus::en_cours;
         $commande->setStatus($selectedStatus);
 
-        $entityManager->persist($commande);
-        $entityManager->flush();
 
         // Décrémenter la quantité de produit dans le stock si le statut est "payé"
         if ($selectedStatus === CommandeStatus::effectue) {
@@ -95,6 +93,8 @@ class CommandesController extends AbstractController
                 }
             }
         }
+        $entityManager->persist($commande);
+        $entityManager->flush();
 
         return $this->json([
             'Message' => 'La nouvelle commande a été ajoutée avec succès.',

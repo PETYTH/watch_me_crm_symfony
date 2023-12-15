@@ -37,6 +37,19 @@ class EntrepriseRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function countClientsByStatus(int $entrepriseId): array
+    {
+        return $this->createQueryBuilder('e')
+            ->select('c.status, COUNT(c.id) as count')
+            ->join('e.clients', 'c')
+            ->andWhere('e.id = :entrepriseId')
+            ->groupBy('c.status')
+            ->setParameter('entrepriseId', $entrepriseId)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    public function findByExampleField($value): array
 //    {
 //        return $this->createQueryBuilder('e')

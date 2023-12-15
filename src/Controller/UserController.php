@@ -5,10 +5,10 @@ namespace App\Controller;
 use DateTime;
 use App\Repository\UserRepository;
 use App\Entity\User;
-use App\Entity\Employes; // Importez l'entité Employes
+use App\Entity\Employes;
 use App\Enum\UserRole;
 use App\Enum\UserStatus;
-use App\Repository\EntrepriseRepository; // Importez le repository EntrepriseRepository
+use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -136,6 +136,8 @@ class UserController extends AbstractController
 
         $birthdayFormatted = $birthday->format('Y-m-d');
         $selectedRole = $decoded->roles[0] ?? UserRole::EMPLOYE;
+        $selectedStatus = $decoded->status[0] ?? UserStatus::COMMERCIAL;
+
 
         // Récupérer les données de l'entreprise et vérifier si elle existe
         $entrepriseId = $decoded->entrepriseId; // À adapter à la façon dont vous récupérez l'ID de l'entreprise
@@ -162,7 +164,15 @@ class UserController extends AbstractController
         // Utilisation de l'ancien mot de passe stocké en base de données
         $user->setPassword($plainPassword);
 
+        $employe = new Employes();
+        $employe->setEmployesEntreprise($entreprise);
+        $employe->setStatus($selectedStatus);
+        $employe->setUser($user);
+
+
         $em->persist($user);
+        $em->persist($employe);
+
         $em->flush();
 
         $subject = 'Mise à jour des vos informations, Nous avons enregistré les modifications que vous avez apportées à votre profil';
